@@ -867,3 +867,48 @@ function createTerminalEasterEgg() {
 document.addEventListener('DOMContentLoaded', function() {
     createTerminalEasterEgg();
 });
+
+document.addEventListener('DOMContentLoaded', function() {
+    const terminalContent = document.querySelector('.terminal-content');
+    const typedText = document.querySelector('.typed-text');
+
+    if (!typedText || !terminalContent) return;
+
+    const text = typedText.getAttribute('data-text') || typedText.textContent;
+    typedText.textContent = '';
+
+    let charIndex = 0;
+    const typingSpeed = 30; // Milliseconds per character
+
+    function typeNextChar() {
+        if (charIndex < text.length) {
+            typedText.textContent += text.charAt(charIndex);
+            charIndex++;
+
+            // Adjust scroll to keep text in view
+            terminalContent.scrollTop = terminalContent.scrollHeight;
+
+            // Random typing speed variation for realism
+            const randomDelay = typingSpeed + Math.random() * 50;
+            setTimeout(typeNextChar, randomDelay);
+        }
+    }
+
+    // Start typing with a slight delay
+    setTimeout(typeNextChar, 500);
+
+    // Add responsive behavior
+    function adjustTerminalHeight() {
+        const terminal = document.querySelector('.terminal');
+        if (!terminal) return;
+
+        // Set a reasonable max-height based on viewport
+        const viewportHeight = window.innerHeight;
+        const maxHeight = Math.min(500, viewportHeight * 0.6);
+        terminal.style.maxHeight = `${maxHeight}px`;
+    }
+
+    // Adjust on load and resize
+    adjustTerminalHeight();
+    window.addEventListener('resize', adjustTerminalHeight);
+});

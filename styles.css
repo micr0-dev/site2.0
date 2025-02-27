@@ -1587,15 +1587,6 @@ body[data-theme="light"] .cursor-follower {
     border-color: #fff;
 }
 
-/* Hide default cursor */
-html, body {
-    cursor: none;
-}
-
-a, button, .btn, .theme-toggle, input, textarea, select {
-    cursor: none;
-}
-
 /* Skills section - new scrolling design */
 #skills {
     background-color: var(--bg-secondary);
@@ -2919,17 +2910,6 @@ h1.glitch {
     }
 }
 
-@media (max-width: 480px) {
-    .hero-image .terminal {
-        transform: scale(0.95);
-        transform-origin: center top;
-    }
-
-    .project-image .terminal.mini {
-        transform: none;
-    }
-}
-
 /* Hero Terminal - specific fixes */
 .hero-image .terminal {
     width: 500px;
@@ -3576,4 +3556,52 @@ body.light-mode .header .logo-text {
 @keyframes blink {
     0%, 100% { opacity: 1; }
     50% { opacity: 0; }
+}
+
+/* Hide default cursor */
+html, body {
+    cursor: none;
+}
+
+a, button, .btn, .theme-toggle, input, textarea, select {
+    cursor: none;
+}
+
+@media (max-width: 480px) {
+    .hero-image .terminal {
+        transform: scale(0.95);
+        transform-origin: center top;
+    }
+
+    .hero-image .terminal-body {
+        font-size: 0.7rem;
+    }
+
+    .hero-image .ascii-art {
+        font-size: 0.7rem;
+    }
+
+    .project-image .terminal.mini {
+        transform: none;
+    }
+
+    .scroll-indicator .mouse {
+        display: none;
+    }
+
+    .cursor {
+        display: none;
+    }
+
+    .cursor-follower {
+        display: none;
+    }
+
+    html, body {
+        cursor: auto;
+    }
+
+    a, button, .btn, .theme-toggle, input, textarea, select {
+        cursor: pointer;
+    }
 }

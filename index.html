@@ -102,6 +102,9 @@
                         <div class="about-quote">
                             <blockquote>"Making an impact through accessible technology."</blockquote>
                         </div>
+                        <div id="ad-container" style="position: absolute; opacity: 0; pointer-events: none; height: 1px; width: 1px;">
+                            <div class="ad-unit"></div>
+                        </div>                        
                     </div>
                     <div class="about-stats">
                         <div class="stat-item">
@@ -794,6 +797,101 @@
                     <div class="philosophy-details">
                         <p>My approach to projects tends to be compulsive rather than strictly scheduled—working intensely when motivation strikes rather than forcing productivity.</p>
                         <p>Environmentally conscious, I designed Altbot to use low-power LLMs to minimize carbon footprint while providing accessibility services.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="privacy-demo" class="section">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Digital <span class="accent">Fingerprint</span></h2>
+                    <div class="section-line"></div>
+                </div>
+        
+                <div class="privacy-demo-container">
+                    <div class="tracking-indicator">
+                        <div class="tracking-progress">
+                            <div class="tracking-bar"></div>
+                        </div>
+                        <div class="tracking-status">Observing your digital footprint...</div>
+                    </div>
+        
+                    <div class="tracking-hints-container">
+                        <!-- Hints will appear here dynamically -->
+                    </div>
+        
+                    <div class="fingerprint-reveal-container hidden">
+                        <button id="reveal-fingerprint" class="reveal-button">
+                            <span class="fingerprint-icon">👁️</span>
+                            <span>Reveal what I've learned about you</span>
+                        </button>
+                    </div>
+        
+                    <div id="fingerprint-results" class="hidden">
+                        <div class="fingerprint-header">
+                            <h3>Your Digital Fingerprint</h3>
+                            <p class="fingerprint-subtitle">Information collected during this single visit</p>
+                        </div>
+        
+                        <div class="fingerprint-sections">
+                            <div class="fingerprint-section" id="technical-profile">
+                                <div class="fingerprint-section-header">
+                                    <h4>Technical Profile</h4>
+                                    <span class="confidence-indicator high">Factual Data</span>
+                                </div>
+                                <div class="section-content">
+                                    <!-- Will be filled dynamically -->
+                                </div>
+                            </div>
+        
+                            <div class="fingerprint-section" id="behavioral-insights">
+                                <div class="fingerprint-section-header">
+                                    <h4>Behavioral Insights</h4>
+                                    <span class="confidence-indicator medium">Based on Interactions</span>
+                                </div>
+                                <div class="section-content">
+                                    <!-- Will be filled dynamically -->
+                                </div>
+                            </div>
+        
+                            <div class="fingerprint-section" id="inferred-profile">
+                                <div class="fingerprint-section-header">
+                                    <h4>What I Can Infer About You</h4>
+                                    <span class="confidence-indicator low">AI-Generated Inferences</span>
+                                </div>
+                                <div class="section-content">
+                                    <!-- Will be filled dynamically -->
+                                </div>
+                            </div>
+                        </div>
+        
+                        <div class="privacy-message">
+                            <h4>The Bigger Picture</h4>
+                            <p><strong>Everything above was determined without cookies, login information, or tracking across sites.</strong></p>
+                            <p>This demonstration used only a fraction of the techniques available to commercial trackers. Companies like Google, Facebook, and data brokers collect thousands of additional data points by:</p>
+                            <ul>
+                                <li>Tracking you across multiple sites and apps</li>
+                                <li>Combining this with your search history, location data, and purchase history</li>
+                                <li>Accessing your social graph (who you know and communicate with)</li>
+                                <li>Analyzing your content consumption over months and years</li>
+                                <li>Purchasing additional data from third-party brokers</li>
+                            </ul>
+                            <p class="privacy-highlight"><strong>All data collected in this demo remained entirely in your browser and will be deleted when you close this page.</strong></p>
+        
+                            <div class="privacy-resources">
+                                <h4>Protect Your Privacy</h4>
+                                <div class="resource-links">
+                                    <a href="https://privacytools.io" target="_blank" rel="noopener noreferrer">Privacy Tools</a>
+                                    <a href="https://www.eff.org/issues/privacy" target="_blank" rel="noopener noreferrer">EFF Privacy Resources</a>
+                                    <a href="https://spreadprivacy.com" target="_blank" rel="noopener noreferrer">Privacy Education</a>
+                                </div>
+                            </div>
+                        </div>
+        
+                        <div class="demo-disclaimer">
+                            <p>This is an educational demonstration. No data leaves your browser. The code is <a href="https://github.com/micr0-dev/site2.0" target="_blank" rel="noopener noreferrer">open source</a> and can be inspected.</p>
+                        </div>
                     </div>
                 </div>
             </div>

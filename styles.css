@@ -3646,11 +3646,6 @@ a, button, .btn, .theme-toggle, input, textarea, select {
     transition: all 0.3s ease;
 }
 
-.tracking-indicator:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
-}
-
 .tracking-progress {
     width: 200px;
     height: 8px;
@@ -3942,12 +3937,6 @@ a, button, .btn, .theme-toggle, input, textarea, select {
         var(--accent-primary), 
         var(--accent-secondary));
     z-index: 1;
-}
-
-.fingerprint-section:hover {
-    transform: translateY(-8px) scale(1.02);
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
-    z-index: 2;
 }
 
 .fingerprint-section .fingerprint-section-header {
@@ -4278,22 +4267,13 @@ a, button, .btn, .theme-toggle, input, textarea, select {
     }
 }
 
-/* Dark mode enhancements */
-@media (prefers-color-scheme: dark) {
-    .fingerprint-section::before {
-        opacity: 0.8;
-    }
 
-    .data-item strong::after {
-        opacity: 0.3;
-    }
-
-    .tracking-hint,
-    .fingerprint-section,
-    .privacy-message {
-        background-color: rgba(30, 30, 30, 0.7);
-    }
+.tracking-hint,
+.fingerprint-section,
+.privacy-message {
+    background-color: var(--bg-secondary);
 }
+
 
 /* Utility Classes */
 .hidden {
@@ -4311,9 +4291,9 @@ a, button, .btn, .theme-toggle, input, textarea, select {
 .privacy-demo-container {
     background-color: var(--card-bg);
     border-radius: var(--border-radius-lg);
-    padding: 2.5rem;
-    box-shadow: var(--shadow-md);
-    margin-top: 2rem;
+    padding: 0rem;
+    box-shadow: none;
+    margin-top: 0rem;
     position: relative;
     overflow: hidden;
     border: 1px solid var(--border-color);

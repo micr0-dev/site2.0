@@ -344,7 +344,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 display: block;
                 font-size: 1.5rem;
                 cursor: pointer;
-                color: var(--text-primary);
+                color: #fff;
                 z-index: 1001;
             }
 
@@ -354,7 +354,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 right: -100%;
                 width: 70%;
                 height: 100vh;
-                background-color: var(--bg-secondary);
+                background-color: rgba(15, 15, 18, 0.95);
                 display: flex;
                 flex-direction: column;
                 justify-content: center;

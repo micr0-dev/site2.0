@@ -54,7 +54,10 @@ document.addEventListener('DOMContentLoaded', function() {
         'Linux Enthusiast',
         'Community Builder',
         'Go Programmer',
-        'Accessibility Advocate'
+        'Accessibility Advocate',
+        'Open Source Contributor',
+        '10x Developer',
+        'Privacy Advocate'
     ];
 
     let phraseIndex = 0;

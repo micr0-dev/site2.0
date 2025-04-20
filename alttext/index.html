@@ -433,6 +433,39 @@
                 margin-top: 2rem;
             }
         }
+        .language-switcher {
+    background-color: var(--card);
+    padding: 0.5rem 0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.language-switcher .container {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.language-option {
+    padding: 0.3rem 0.75rem;
+    margin-left: 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    color: var(--text-light);
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.language-option:hover {
+    background-color: #f3f4f6;
+    text-decoration: none;
+}
+
+.language-option.active {
+    background-color: var(--primary);
+    color: white;
+}
     </style>
 </head>
 <body>
@@ -442,6 +475,13 @@
             <p>A comprehensive guide to writing effective image descriptions that make the web accessible to everyone.</p>
         </div>
     </header>
+
+    <div class="language-switcher">
+        <div class="container">
+            <a href="/alttext" class="language-option active">English</a>
+            <a href="/alttext-de" class="language-option">Deutsch</a>
+        </div>
+    </div>
     
     <div class="container content">
         <section>

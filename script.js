@@ -1836,3 +1836,30 @@ getMostViewedSection() {
     }
 }
 
+// Add to your script.js
+document.addEventListener('DOMContentLoaded', function() {
+    // Button copy functionality with better visual feedback
+    const copyButton = document.getElementById('copyButton');
+    
+    if (copyButton) {
+        copyButton.addEventListener('click', function() {
+            const codeElement = copyButton.closest('.copy-field').querySelector('code');
+            const textToCopy = codeElement.textContent;
+            
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                // Visual feedback
+                copyButton.classList.add('copy-success');
+                const originalIcon = copyButton.innerHTML;
+                copyButton.innerHTML = '<i class="fas fa-check"></i>';
+                
+                // Reset after 2 seconds
+                setTimeout(() => {
+                    copyButton.innerHTML = originalIcon;
+                    copyButton.classList.remove('copy-success');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+            });
+        });
+    }
+});

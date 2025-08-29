@@ -1142,7 +1142,7 @@
             const path = document.createElementNS(svg.namespaceURI, 'path');
             path.setAttribute('d', pts.map((p, i) => (i ? 'L' : 'M') + p[0] + ',' + p[1]).join(' '));
             path.setAttribute('fill', 'none');
-            path.setAttribute('stroke', getComputedStyle(document.documentElement).getPropertyValue('--accent').trim());
+            path.setAttribute('stroke', "var(--accent)");
             path.setAttribute('stroke-width', '3'); path.setAttribute('stroke-linecap', 'round');
             svg.appendChild(path);
 

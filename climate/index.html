@@ -1325,14 +1325,6 @@
             const cutoffXVal = series[series.length - 1].x;
             const cutoffX = x(cutoffXVal);
 
-            const divider = document.createElementNS(svg.namespaceURI, 'line');
-            divider.setAttribute('x1', cutoffX);
-            divider.setAttribute('x2', cutoffX);
-            divider.setAttribute('y1', PAD);
-            divider.setAttribute('y2', H - PAD);
-            divider.setAttribute('class', 'proj-divider');
-            svg.appendChild(divider);
-
             const toPath = pts => pts.map((p, i) => (i ? 'L' : 'M') + x(p.x) + ',' + y(p.y)).join(' ');
 
             // historical (solid)

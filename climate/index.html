@@ -1149,7 +1149,7 @@
         /* Data loaders with graceful fallback links in console */
         async function loadGISTEMP() {
             await withChartLoading('tempChart', async () => {
-                const data = await fetch('data/gistemp.json').then(r => r.json());
+                const data = await fetch('public/data/gistemp.json').then(r => r.json());
                 renderLine('tempChart', data, { fmtY: v => v.toFixed(2) });
             });
         }

@@ -1366,6 +1366,44 @@
             window.addEventListener('orientationchange', () => apply(mq), { passive: true });
         })();
 
+        (function lockDialHorizontal() {
+            // Inject minimal CSS to disable horizontal scroll and gestures
+            const css = `
+    #dial{
+      overflow-x: hidden !important;
+      touch-action: pan-y;           /* allow only vertical touch panning */
+      overscroll-behavior-x: contain;/* stop sideways chaining */
+    }
+  `;
+            let tag = document.getElementById('dial-lock-x-style');
+            if (!tag) {
+                tag = document.createElement('style');
+                tag.id = 'dial-lock-x-style';
+                tag.textContent = css;
+                document.head.appendChild(tag);
+            }
+
+            const el = document.getElementById('dial');
+            if (!el) return;
+
+            // Keep scrollLeft pinned at 0 during momentum scrolls
+            el.addEventListener('scroll', () => {
+                if (el.scrollLeft !== 0) el.scrollLeft = 0;
+            }, { passive: true });
+
+            // On touchpads: block horizontal wheel deltas
+            el.addEventListener('wheel', (e) => {
+                if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+                    e.preventDefault();
+                    el.scrollLeft = 0;
+                }
+            }, { passive: false });
+
+            // Safety: if something sets scrollLeft later, zero it out
+            const ro = new ResizeObserver(() => { el.scrollLeft = 0; });
+            ro.observe(el);
+        })();
+
     </script>
 </body>
 

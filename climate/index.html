@@ -689,6 +689,17 @@
 
             /* align to mobile rail */
         }
+
+        .t-row.post-life.first-post::before,
+        .t-row.post-life.first-post::after {
+            top: calc(var(--death-offset, 0px) * -1);
+            /* pull overlay up into the gap */
+        }
+
+        /* (you also lost the border on the marker’s horizontal line — restore it) */
+        .death-marker::before {
+            border-top: 2px solid color-mix(in srgb, var(--accent) 60%, var(--line));
+        }
     </style>
 </head>
 
@@ -1568,7 +1579,6 @@
             const deathYear = CURRENT_YEAR + (DEATH_AGE - currentAge);
             const rows = Array.from(timelineEl.querySelectorAll(':scope > .t-row'));
 
-            // insert the marker between rows (non-sticky, in-flow)
             const marker = ensureDeathMarker();
             marker.remove();
             let insertBefore = null;
@@ -1577,6 +1587,22 @@
             }
             if (insertBefore) timelineEl.insertBefore(marker, insertBefore);
             else timelineEl.appendChild(marker);
+
+            // reset any previous "first-post" state
+            rows.forEach(r => {
+                r.classList.remove('first-post');
+                r.style.removeProperty('--death-offset');
+            });
+
+            // if we have a first post-life row, extend its overlay up to the marker center
+            if (insertBefore) {
+                const markerRect = marker.getBoundingClientRect();
+                const rowRect = insertBefore.getBoundingClientRect();
+                const markerCenter = markerRect.top + (markerRect.height / 2);
+                const gap = Math.max(0, rowRect.top - markerCenter);        // pixels from marker line to row top
+                insertBefore.classList.add('first-post');
+                insertBefore.style.setProperty('--death-offset', gap + 'px');
+            }
 
             // update each row
             rows.forEach(r => {
@@ -1611,6 +1637,8 @@
                 upsertLifeNote(r, msg);
             });
         }
+
+
 
     </script>
 </body>

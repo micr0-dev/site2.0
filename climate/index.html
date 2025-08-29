@@ -292,7 +292,17 @@
 
         /* Charts */
         .chart {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: var(--bg);
+            border: 1px dashed var(--line);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             position: relative;
+            overflow: hidden;
+            padding: .5rem
         }
 
         .chart.loading::after {

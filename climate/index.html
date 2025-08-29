@@ -830,7 +830,7 @@
             <div class="footgrid">
                 <div>
                     <h3>What this is</h3>
-                    <p>A minimalist, interactive overview of likely life-scale climate impacts. Matter-of-fact tone.
+                    <p>An interactive overview of likely life-scale climate impacts.
                         Charts use real datasets. Accessible without a science degree.</p>
                 </div>
                 <div>
@@ -1115,14 +1115,14 @@
             xTicks.forEach(v => {
                 const tx = document.createElementNS(svg.namespaceURI, 'text');
                 tx.setAttribute('x', x(v)); tx.setAttribute('y', H - PAD + 24);
-                tx.setAttribute('text-anchor', 'middle'); tx.setAttribute('font-size', '12'); tx.textContent = Math.round(v);
+                tx.setAttribute('text-anchor', 'middle'); tx.setAttribute('font-size', '18'); tx.textContent = Math.round(v);
                 axis.appendChild(tx);
             });
             const yTicks = niceAxis(minY, maxY, 5);
             yTicks.forEach(v => {
                 const ty = document.createElementNS(svg.namespaceURI, 'text');
                 ty.setAttribute('x', PAD - 10); ty.setAttribute('y', y(v) + 4);
-                ty.setAttribute('text-anchor', 'end'); ty.setAttribute('font-size', '12'); ty.textContent = fmtY(v);
+                ty.setAttribute('text-anchor', 'end'); ty.setAttribute('font-size', '18'); ty.textContent = fmtY(v);
                 axis.appendChild(ty);
             });
             svg.appendChild(axis);
@@ -1161,10 +1161,12 @@
             });
         }
 
+        const formatCO2Gt = vTonnes => nf1.format(vTonnes / 1e9) + ' Gt';
+
         async function loadCO2(targetId = 'co2Chart') {
             await withChartLoading(targetId, async () => {
                 const data = await fetch('public/data/co2.json').then(r => r.json());
-                renderLine(targetId, data, { fmtY: v => nf1.format(v) });
+                renderLine(targetId, data, { fmtY: formatCO2Gt, yMin: 0 });
             });
         }
 

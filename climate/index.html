@@ -693,12 +693,6 @@
         /* small appended note that we add on post-life rows */
         .life-note {
             margin-top: .35rem;
-            font-size: .9rem;
-            color: var(--muted);
-        }
-
-        .life-note strong {
-            font-weight: 800;
         }
     </style>
 </head>
@@ -1547,11 +1541,15 @@
             }
             if (!note) {
                 note = document.createElement('p');
-                note.className = 'life-note';
+                note.className = 'life-note muted';   // <- match the built-in style
                 host.appendChild(note);
+            } else {
+                // ensure class remains correct if something else touched it
+                note.className = 'life-note muted';
             }
             note.innerHTML = html;
         }
+
 
         function toggleReachItLine(row, post) {
             const ps = row.querySelectorAll('.t-year .muted');

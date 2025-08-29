@@ -695,11 +695,6 @@
             top: calc(var(--death-offset, 0px) * -1);
             /* pull overlay up into the gap */
         }
-
-        /* (you also lost the border on the marker’s horizontal line — restore it) */
-        .death-marker::before {
-            border-top: 2px solid color-mix(in srgb, var(--accent) 60%, var(--line));
-        }
     </style>
 </head>
 
@@ -1557,16 +1552,22 @@
         }
 
 
-        function toggleReachItLine(row, post) {
+        function toggleAgeLines(row, post) {
             const ps = row.querySelectorAll('.t-year .muted');
             ps.forEach(p => {
-                // detect the specific phrasing (robust to markup)
-                const txt = (p.textContent || "").toLowerCase();
-                const hasOneAgeSpan = p.querySelectorAll('.age-year').length === 1;
-                const looksLikeReachIt = /if you reach it/.test(txt) || (hasOneAgeSpan && /you.?d be around/.test(txt));
-                if (post && looksLikeReachIt) {
-                    p.style.display = 'none';
-                    p.dataset.mortalityHidden = '1';
+                const isLifeNote = p.classList.contains('life-note');
+                if (isLifeNote) return; // never hide our appended note
+
+                const txt = (p.textContent || "");
+                const hasAgeSpan = p.querySelector('.age-year') !== null;
+                const isReachIt = /if you reach it/i.test(txt);
+
+                const shouldHide = post && (isReachIt || hasAgeSpan);
+                if (shouldHide) {
+                    if (!p.dataset.mortalityHidden) {
+                        p.style.display = 'none';
+                        p.dataset.mortalityHidden = '1';
+                    }
                 } else if (p.dataset.mortalityHidden) {
                     p.style.display = '';
                     delete p.dataset.mortalityHidden;
@@ -1610,8 +1611,7 @@
                 const post = y > deathYear;
                 r.classList.toggle('post-life', post);
 
-                // hide/show the built-in "If you reach it..." line appropriately
-                toggleReachItLine(r, post);
+                toggleAgeLines(r, post);
 
                 if (!post) {
                     // remove any previously appended life-note

@@ -641,7 +641,6 @@
             left: 0;
             right: 0;
             top: 50%;
-            border-top: 2px solid color-mix(in srgb, var(--accent) 60%, var(--line));
         }
 
         .death-marker .label {
@@ -1554,14 +1553,31 @@
             note.innerHTML = html;
         }
 
-        /* place marker, toggle dotted rail, and append kids/grandkids text AFTER death */
+        function toggleReachItLine(row, post) {
+            const ps = row.querySelectorAll('.t-year .muted');
+            ps.forEach(p => {
+                // detect the specific phrasing (robust to markup)
+                const txt = (p.textContent || "").toLowerCase();
+                const hasOneAgeSpan = p.querySelectorAll('.age-year').length === 1;
+                const looksLikeReachIt = /if you reach it/.test(txt) || (hasOneAgeSpan && /you.?d be around/.test(txt));
+                if (post && looksLikeReachIt) {
+                    p.style.display = 'none';
+                    p.dataset.mortalityHidden = '1';
+                } else if (p.dataset.mortalityHidden) {
+                    p.style.display = '';
+                    delete p.dataset.mortalityHidden;
+                }
+            });
+        }
+
+        /* place marker, toggle dotted rail, append kids/grandkids note — year not bolded */
         function updateMortality(currentAge) {
             const deathYear = CURRENT_YEAR + (DEATH_AGE - currentAge);
             const rows = Array.from(timelineEl.querySelectorAll(':scope > .t-row'));
 
-            // (A) insert the marker *between* rows (non-sticky)
+            // insert the marker between rows (non-sticky, in-flow)
             const marker = ensureDeathMarker();
-            marker.remove(); // in case we're re-running
+            marker.remove();
             let insertBefore = null;
             for (const r of rows) {
                 if (rowYear(r) > deathYear) { insertBefore = r; break; }
@@ -1569,35 +1585,39 @@
             if (insertBefore) timelineEl.insertBefore(marker, insertBefore);
             else timelineEl.appendChild(marker);
 
-            // (B) flip the rail & append note text after death; do not touch original paragraphs
+            // update each row
             rows.forEach(r => {
                 const y = rowYear(r);
                 const post = y > deathYear;
                 r.classList.toggle('post-life', post);
 
+                // hide/show the built-in "If you reach it..." line appropriately
+                toggleReachItLine(r, post);
+
                 if (!post) {
-                    upsertLifeNote(r, "");    // remove any prior note
+                    // remove any previously appended life-note
+                    upsertLifeNote(r, "");
                     return;
                 }
 
-                // ages relative to that row's year
+                // compute ages at this row's year
                 const youAtY = Math.max(0, currentAge + (y - CURRENT_YEAR));
                 const kidAtY = Math.max(0, youAtY - GENERATION);
                 const gkidAtY = Math.max(0, kidAtY - GENERATION);
                 const delta = y - deathYear;
 
+                // build message: ages bold, year NOT bold
                 let msg;
                 if (delta <= GENERATION) {
-                    msg = `You are already gone. But your kids would be roughly <strong>${nf0.format(kidAtY)}</strong> in <strong>${y}</strong>.`;
+                    msg = `You are already gone. But your kids would be roughly <strong>${nf0.format(kidAtY)}</strong> in ${y}.`;
                 } else if (delta <= 2 * GENERATION) {
-                    msg = `You and your kids are already gone. But your grandkids would be roughly <strong>${nf0.format(gkidAtY)}</strong> in <strong>${y}</strong>.`;
+                    msg = `You and your kids are already gone. But your grandkids would be roughly <strong>${nf0.format(gkidAtY)}</strong> in ${y}.`;
                 } else {
-                    msg = `You, your kids, and your grandkids are already gone by <strong>${y}</strong>.`;
+                    msg = `You, your kids, and your grandkids are already gone by ${y}.`;
                 }
                 upsertLifeNote(r, msg);
             });
         }
-
 
     </script>
 </body>

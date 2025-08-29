@@ -1111,27 +1111,27 @@
 
         /* Data loaders with graceful fallback links in console */
         async function loadGISTEMP() {
-            const data = await fetch('/climate/data/gistemp.json').then(r => r.json());
+            const data = await fetch('/climate/public/data/gistemp.json').then(r => r.json());
             renderLine('tempChart', data, { fmtY: v => v.toFixed(2) });
         }
 
         async function loadSeaLevel() {
-            const data = await fetch('/climate/data/sealevel.json').then(r => r.json());
+            const data = await fetch('/climate/public/data/sealevel.json').then(r => r.json());
             renderLine('slrChart', data, { fmtY: v => nf0.format(v) });
         }
 
         async function loadCO2(targetId = 'co2Chart') {
-            const data = await fetch('/climate/data/co2.json').then(r => r.json());
+            const data = await fetch('/climate/public/data/co2.json').then(r => r.json());
             renderLine(targetId, data, { fmtY: v => nf1.format(v) });
         }
 
         async function loadDisasterDamage(targetId = 'damageChart') {
-            const data = await fetch('/climate/data/damages.json').then(r => r.json());
+            const data = await fetch('/climate/public/data/damages.json').then(r => r.json());
             renderLine(targetId, data, { fmtY: compactCurrency(v), yMin: 0 });
         }
 
         async function loadIDP(targetId = 'idpChart') {
-            const data = await fetch('/climate/data/idp.json').then(r => r.json());
+            const data = await fetch('/climate/public/data/idp.json').then(r => r.json());
             renderLine(targetId, data, { fmtY: compact, yMin: 0 });
         }
 

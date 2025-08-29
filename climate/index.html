@@ -1111,73 +1111,30 @@
 
         /* Data loaders with graceful fallback links in console */
         async function loadGISTEMP() {
-            const url = 'https://data.giss.nasa.gov/gistemp//tabledata_v4/ZonAnn.Ts%2BdSST.txt';
-            const txt = await fetch(url).then(r => r.text());
-            const lines = txt.split(/\r?\n/).filter(l => /^\s*\d{4}/.test(l));
-            const data = lines.map(l => {
-                const parts = l.trim().split(/\s+/);
-                const year = +parts[0], glob = +parts[1] * 0.01;
-                return { x: year, y: glob };
-            }).filter(d => d.x >= 1880);
+            const data = await fetch('/data/gistemp.json').then(r => r.json());
             renderLine('tempChart', data, { fmtY: v => v.toFixed(2) });
         }
 
         async function loadSeaLevel() {
-            const url = 'https://climate.nasa.gov/system/internal_resources/details/original/121_Global_Sea_Level_Data_File.txt';
-            const txt = await fetch(url).then(r => r.text());
-            const lines = txt.split(/\r?\n/).filter(l => /^\s*(\d|\-)/.test(l) && !/^HDR/.test(l));
-            const data = [];
-            for (const l of lines) {
-                const p = l.trim().split(/\s+/);
-                if (p.length < 12) continue;
-                const yearFrac = +p[2], gmsl = +p[11];
-                if (!isFinite(yearFrac) || !isFinite(gmsl) || Math.abs(gmsl) >= 9e4) continue;
-                data.push({ x: yearFrac, y: gmsl });
-            }
+            const data = await fetch('/data/sealevel.json').then(r => r.json());
             renderLine('slrChart', data, { fmtY: v => nf0.format(v) });
         }
 
         async function loadCO2(targetId = 'co2Chart') {
-            try {
-                const url = 'https://ourworldindata.org/grapher/annual-co2-including-land-use.csv';
-                const csv = await fetch(url).then(r => r.text());
-                const rows = csv.trim().split(/\r?\n/).map(r => r.split(','));
-                const head = rows.shift();
-                const entityIdx = head.indexOf('Entity'), yearIdx = head.indexOf('Year'), valIdx = head.length - 1;
-                const data = rows.filter(r => r[entityIdx] === 'World').map(r => ({ x: +r[yearIdx], y: +r[valIdx] })).filter(d => d.x >= 1959);
-                renderLine(targetId, data, { fmtY: v => nf1.format(v) }); // GtCO₂/yr ~ 36.8
-            } catch (e) {
-                document.getElementById(targetId).innerHTML = '<div class="tiny muted">CO₂ data blocked (CORS/offline). <a class="inline" target="_blank" href="https://ourworldindata.org/co2-emissions">Open source</a>.</div>';
-            }
+            const data = await fetch('/data/co2.json').then(r => r.json());
+            renderLine(targetId, data, { fmtY: v => nf1.format(v) });
         }
 
         async function loadDisasterDamage(targetId = 'damageChart') {
-            try {
-                const url = 'https://ourworldindata.org/grapher/economic-damage-from-natural-disasters.csv';
-                const csv = await fetch(url).then(r => r.text());
-                const rows = csv.trim().split(/\r?\n/).map(r => r.split(','));
-                const head = rows.shift();
-                const entityIdx = head.indexOf('Entity'), yearIdx = head.indexOf('Year'), valIdx = head.length - 1;
-                const data = rows.filter(r => r[entityIdx] === 'World').map(r => ({ x: +r[yearIdx], y: +r[valIdx] })).filter(d => isFinite(d.y) && d.x >= 1960);
-                renderLine(targetId, data, { fmtY: v => compactCurrency(v), yMin: 0 });
-            } catch (e) {
-                document.getElementById(targetId).innerHTML = '<div class="tiny muted">Disaster damage data blocked (CORS/offline). <a class="inline" target="_blank" href="https://ourworldindata.org/natural-disasters">Open source</a>.</div>';
-            }
+            const data = await fetch('/data/damages.json').then(r => r.json());
+            renderLine(targetId, data, { fmtY: compactCurrency(v), yMin: 0 });
         }
 
         async function loadIDP(targetId = 'idpChart') {
-            try {
-                const url = 'https://ourworldindata.org/grapher/internally-displaced-persons-from-disasters.csv';
-                const csv = await fetch(url).then(r => r.text());
-                const rows = csv.trim().split(/\r?\n/).map(r => r.split(','));
-                const head = rows.shift();
-                const entityIdx = head.indexOf('Entity'), yearIdx = head.indexOf('Year'), valIdx = head.length - 1;
-                const data = rows.filter(r => r[entityIdx] === 'World').map(r => ({ x: +r[yearIdx], y: +r[valIdx] })).filter(d => isFinite(d.y));
-                renderLine(targetId, data, { fmtY: v => compact(v), yMin: 0 });
-            } catch (e) {
-                document.getElementById(targetId).innerHTML = '<div class="tiny muted">Displacement data blocked (CORS/offline). <a class="inline" target="_blank" href="https://ourworldindata.org/natural-disasters">Open source</a>.</div>';
-            }
+            const data = await fetch('/data/idp.json').then(r => r.json());
+            renderLine(targetId, data, { fmtY: compact, yMin: 0 });
         }
+
 
         // Tab logic
         const tabButtons = [

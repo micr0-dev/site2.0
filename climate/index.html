@@ -1267,6 +1267,59 @@
             finally { setChartLoading(elId, false); }
         }
 
+        (function mobileTimelineFix() {
+            const BREAKPOINT = 880; // matches your CSS intent
+
+            // CSS overrides applied only when the class is present
+            const css = `
+  .mobile-timeline .timeline::before{
+    left: 0.75rem !important;   /* rail on the left */
+  }
+  .mobile-timeline .t-row{
+    grid-template-columns: 1fr !important;  /* stack year above panel */
+    gap: 1.2rem !important;
+    padding: 2rem 0 2rem 1.25rem !important; /* room for the rail */
+  }
+  .mobile-timeline .t-year{
+    position: static !important;  /* disable sticky on phones */
+    top: auto !important;
+    margin: 0 !important;
+  }
+  .mobile-timeline .panel{
+    margin: 0 !important;
+  }
+
+  /* Very small phones: tuck the rail a bit more */
+  @media (max-width: 420px){
+    .mobile-timeline .timeline::before{ left: 0.6rem !important; }
+    .mobile-timeline .t-row{ padding-left: 1rem !important; }
+  }
+
+  /* Ultra-narrow fallback: if space is *really* tight, hide the rail */
+  @media (max-width: 340px){
+    .mobile-timeline .timeline::before{ display: none !important; }
+    .mobile-timeline .t-row{ padding-left: 0 !important; }
+  }`;
+
+            // inject style once
+            let tag = document.getElementById('mobile-timeline-fix');
+            if (!tag) {
+                tag = document.createElement('style');
+                tag.id = 'mobile-timeline-fix';
+                tag.textContent = css;
+                document.head.appendChild(tag);
+            }
+
+            // toggle class based on viewport width and keep it in sync
+            const root = document.documentElement;
+            const mq = window.matchMedia(`(max-width:${BREAKPOINT}px)`);
+            const apply = e => root.classList.toggle('mobile-timeline', e.matches);
+            apply(mq);
+            (mq.addEventListener ? mq.addEventListener('change', apply) : mq.addListener(apply));
+
+            // also re-check on orientationchange (some browsers don't fire a media query change immediately)
+            window.addEventListener('orientationchange', () => apply(mq), { passive: true });
+        })();
 
     </script>
 </body>

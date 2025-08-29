@@ -1352,10 +1352,10 @@
 
         /* Data loaders with graceful fallback links in console */
         async function loadGISTEMP() {
-            await withChartLoading('slrChart', async () => {
+            await withChartLoading('tempChart', async () => {   // <-- was 'slrChart'
                 const data = await fetch('public/data/gistemp.json').then(r => r.json());
                 const scen = await fetch('public/data/gistemp_scenario.json').then(r => r.json());
-                const endY = endYearForChart('tempChart');          // -> 2039 for your 2030s section
+                const endY = endYearForChart('tempChart');        // -> 2029 in the 2025–2029 section
                 renderLine('tempChart', data, {
                     fmtY: v => v.toFixed(2) + ' °C',
                     projectionTo: endY,
@@ -1364,8 +1364,8 @@
                     jaggedFactor: 0.5
                 });
             });
-
         }
+
 
         async function loadSeaLevel() {
             await withChartLoading('slrChart', async () => {
@@ -1916,24 +1916,35 @@
             if (!hist?.length || !scenario?.length || endYear == null) return [];
             const last = hist[hist.length - 1];
             if (endYear <= last.x) return [];
-            const step = inferStep(hist);                       // monthly or yearly to match your chart
-            const baseAmp = medianAbsStep(hist) || 0;          // how jagged the historical line is
-            const amp = baseAmp * jaggedFactor;                // tune here if you want more/less jagged
+
+            const step = inferStep(hist);               // monthly (~0.0833) or yearly (1)
+            const baseAmp = medianAbsStep(hist) || 0;   // typical wiggle from your real data
+            const amp = baseAmp * jaggedFactor;
             const rng = mulberry32(seedFrom(elId));
 
-            const proj = [{ x: last.x, y: last.y }];           // include last real point to connect cleanly
+            const proj = [{ x: last.x, y: last.y }];
             let prevY = last.y;
 
             for (let x = last.x + step; x <= endYear + 1e-9; x += step) {
-                const y0 = interpY(scenario, x);                 // “likely scenario” baseline
-                // small stable wiggle around the scenario (±amp)
+                const scenNext = interpY(scenario, x);
                 const jitter = (rng() * 2 - 1) * amp;
-                let y = y0 + jitter;
-                if (monotonic) y = Math.max(prevY, y);            // e.g., sea level shouldn't dip below last
-                proj.push({ x, y }); prevY = y;
+
+                if (monotonic) {
+                    // keep it increasing but let the *step size* wiggle
+                    const scenStep = Math.max(0, scenNext - prevY);           // scenario’s forward push
+                    const noisyStep = Math.max(0, scenStep + jitter);          // allow wiggle but not negative
+                    const minStep = Math.max(amp * 0.10, scenStep * 0.30);   // avoid flat segments
+                    const delta = Math.max(noisyStep, minStep);
+                    const y = prevY + delta;
+                    proj.push({ x, y }); prevY = y;
+                } else {
+                    let y = scenNext + jitter;
+                    proj.push({ x, y }); prevY = y;
+                }
             }
             return proj;
         }
+
     </script>
 </body>
 

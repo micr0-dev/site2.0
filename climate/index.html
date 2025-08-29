@@ -625,6 +625,79 @@
                 scale: 1.5;
             }
         }
+
+        /* --- Mortality marker + dotted future --- */
+        .finis {
+            display: none !important;
+        }
+
+        /* hide the old skull footer */
+
+        /* a slim sticky marker that sits mid-screen and cuts through the timeline */
+        .death-marker {
+            position: sticky;
+            top: 45vh;
+            /* center-ish; tweak if you like */
+            height: 0;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .death-marker::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            border-top: 2px solid color-mix(in srgb, var(--accent) 60%, var(--line));
+        }
+
+        .death-marker .label {
+            position: absolute;
+            top: -0.95rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            padding: .2rem .55rem;
+            font-weight: 800;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        /* cover the solid rail on rows *after* death, redraw as dotted */
+        .t-row.post-life::before {
+            content: "";
+            position: absolute;
+            left: calc(50% - .5px);
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: var(--bg);
+            /* paint over the solid line */
+            z-index: 1;
+        }
+
+        .t-row.post-life::after {
+            content: "";
+            position: absolute;
+            left: calc(50% - .5px);
+            top: 0;
+            bottom: 0;
+            border-left: 1px dotted var(--line);
+            z-index: 2;
+        }
+
+        @media (max-width:880px) {
+
+            .t-row.post-life::before,
+            .t-row.post-life::after {
+                left: 1rem;
+            }
+
+            /* match your mobile rail */
+        }
     </style>
 </head>
 
@@ -1004,6 +1077,7 @@
                     el.setAttribute('aria-selected', i === idx ? 'true' : 'false');
                 });
                 updateAges(selAge);
+
             };
 
             const snapToIdx = (idx) => {
@@ -1045,6 +1119,8 @@
             });
             // keep the document title in sync with the dial
             document.title = `I am ${currentAge} — How climate change will shape my life`;
+
+            updateMortality(currentAge);
         }
 
 
@@ -1431,163 +1507,81 @@
             const ro = new ResizeObserver(() => { el.scrollLeft = 0; });
             ro.observe(el);
         })();
+        /* ---- Mortality marker logic ---- */
+        const DEATH_AGE = 86;      // tweak if you want a different default
+        const GENERATION = 30;     // years per generation (kids, grandkids)
+        const timelineEl = document.getElementById('timeline');
+        let deathMarkerEl = null;
 
-        (function mortalityLayer() {
-            const LIFE_EXPECTANCY = 86;   // "like 86"
-            const GEN_GAP = 35;           // assumed years per generation
-            const CURRENT_YEAR = window.CURRENT_YEAR || new Date().getFullYear();
+        function ensureDeathMarker() {
+            if (deathMarkerEl) return deathMarkerEl;
+            deathMarkerEl = document.createElement('div');
+            deathMarkerEl.id = 'deathMarker';
+            deathMarkerEl.className = 'death-marker';
+            deathMarkerEl.innerHTML = `<span class="label tiny">
+    <i class="fa-solid fa-skull"></i> eventually, every timeline ends
+  </span>`;
+            return deathMarkerEl;
+        }
 
-            const timeline = document.getElementById('timeline');
-            if (!timeline || typeof window.updateAges !== 'function') return;
+        /* pick a representative year for each row (we use the max of its data-year spans) */
+        function rowYear(row) {
+            let y = -Infinity;
+            row.querySelectorAll('.age-year').forEach(s => {
+                const v = parseInt(s.getAttribute('data-year'), 10);
+                if (!Number.isNaN(v)) y = Math.max(y, v);
+            });
+            return Number.isFinite(y) ? y : CURRENT_YEAR;
+        }
 
-            // --- utilities ---
-            const clamp0 = v => Math.max(0, Math.round(v));
-            const byAppearOrder = (a, b) => a.idx - b.idx;
+        /* insert marker at the right spot, flip rail to dotted after, and rewrite the blurbs */
+        function updateMortality(currentAge) {
+            const deathYear = CURRENT_YEAR + (DEATH_AGE - currentAge);
+            const rows = Array.from(timelineEl.querySelectorAll(':scope > .t-row'));
+            const marker = ensureDeathMarker();
 
-            // Representative year for each row (prefer the largest data-year in its sticky year block)
-            function getRowYear(row) {
-                let years = [...row.querySelectorAll('.t-year .age-year')].map(el => +el.getAttribute('data-year'));
-                if (years.length === 0) {
-                    // Fallback: try numbers inside the heading text
-                    const txt = (row.querySelector('.t-year')?.textContent || '').match(/\b(19|20)\d{2}\b/g);
-                    if (txt) years = txt.map(Number);
+            // find the first row whose representative year is *after* deathYear
+            let insertBefore = null;
+            for (const r of rows) {
+                if (rowYear(r) > deathYear) { insertBefore = r; break; }
+            }
+            if (insertBefore) timelineEl.insertBefore(marker, insertBefore);
+            else timelineEl.appendChild(marker);
+
+            // toggle dotted rail + rewrite the muted paragraph text after death
+            rows.forEach(r => {
+                const y = rowYear(r);
+                const post = y > deathYear;
+                r.classList.toggle('post-life', post);
+
+                const p = r.querySelector('.t-year .muted');
+                if (!p) return;
+
+                // stash original once so we can restore when dial changes
+                if (!p.dataset.orig) p.dataset.orig = p.innerHTML;
+
+                if (!post) {
+                    p.innerHTML = p.dataset.orig;
+                    return;
                 }
-                return years.length ? Math.max(...years) : CURRENT_YEAR; // conservative fallback
-            }
 
-            // Ensure a single reusable marker row exists
-            function ensureMarker() {
-                let r = document.getElementById('death-marker');
-                if (r) return r;
+                // age math
+                const youAtY = Math.max(0, currentAge + (y - CURRENT_YEAR));
+                const kidAtY = Math.max(0, youAtY - GENERATION);
+                const gkidAtY = Math.max(0, kidAtY - GENERATION);
 
-                r = document.createElement('div');
-                r.className = 't-row';
-                r.id = 'death-marker';
-
-                const year = document.createElement('div');
-                year.className = 't-year';
-                year.innerHTML = `
-      <span class="badge"><span class="dot"></span> <span id="death-year-label">—</span></span>
-      <h2>Likely end of your life</h2>
-      <p class="muted tiny">Assuming life expectancy ≈ ${LIFE_EXPECTANCY} years.</p>
-    `;
-
-                const panel = document.createElement('div');
-                panel.className = 'panel';
-                panel.innerHTML = `
-      <div class="finis tiny" style="margin: .25rem 0 0">
-        <i class="fa-solid fa-skull"></i>
-        eventually, every timeline ends
-      </div>
-    `;
-
-                r.appendChild(year);
-                r.appendChild(panel);
-                timeline.appendChild(r); // temporary; we’ll move it to the right spot each update
-                injectMarkerStyles();
-                return r;
-            }
-
-            function injectMarkerStyles() {
-                if (document.getElementById('death-marker-style')) return;
-                const css = `
-      /* Subtle warm tint to echo your existing finis color */
-      #death-marker .panel{ background: #fffaf1; }
-      #death-marker .badge .dot{
-        background: #8b5e3c; box-shadow: 0 0 0 4px color-mix(in srgb, #8b5e3c 18%, transparent);
-      }
-      /* On very small phones, keep it compact */
-      @media (max-width: 420px){
-        #death-marker .t-year h2{ font-size: 1.1rem; }
-      }
-    `;
-                const tag = document.createElement('style');
-                tag.id = 'death-marker-style';
-                tag.textContent = css;
-                document.head.appendChild(tag);
-            }
-
-            // Re-position marker between the correct rows based on year
-            function placeMarkerAtYear(marker, targetYear) {
-                const rows = [...timeline.querySelectorAll('.t-row')].filter(r => r.id !== 'death-marker');
-                const meta = rows.map((row, idx) => ({ row, idx, yr: getRowYear(row) })).sort(byAppearOrder);
-
-                const before = meta.find(m => m.yr > targetYear);
-                document.getElementById('death-year-label').textContent = String(targetYear);
-
-                if (before) timeline.insertBefore(marker, before.row);
-                else timeline.appendChild(marker);
-            }
-
-            // Rewrite the first gray <p> in each .t-year after death year
-            function rewriteFutureBlurbs(currentAge, deathYear) {
-                const rows = [...timeline.querySelectorAll('.t-row')].filter(r => r.id !== 'death-marker');
-
-                rows.forEach(row => {
-                    const yr = getRowYear(row);
-                    const p = row.querySelector('.t-year p.muted');
-                    if (!p) return;
-
-                    // Keep original for restoration
-                    if (!p.dataset.original) p.dataset.original = p.innerHTML;
-
-                    // Helper: age of person with base age A0 at target year
-                    const ageAt = (A0, targetYear) => clamp0(A0 + (targetYear - CURRENT_YEAR));
-
-                    if (yr <= deathYear) {
-                        // Restore normal phrasing before/at the marker
-                        p.innerHTML = p.dataset.original;
-                        return;
-                    }
-
-                    // Build new phrasing for after death
-                    const you = ageAt(currentAge, yr);
-                    const kids = ageAt(currentAge - GEN_GAP, yr);
-                    const grand = ageAt(currentAge - 2 * GEN_GAP, yr);
-
-                    const gone = (age) => age >= LIFE_EXPECTANCY;
-
-                    let msg = '';
-                    if (gone(you) && !gone(kids)) {
-                        msg = `You are already gone. But your kids would be <strong>${kids}</strong>.`;
-                    } else if (gone(you) && gone(kids) && !gone(grand)) {
-                        msg = `You and your kids are already gone. But your grandkids would be <strong>${grand}</strong>.`;
-                    } else if (gone(you) && gone(kids) && gone(grand)) {
-                        // Ultra-far future; not strictly requested, but reads well.
-                        msg = `You, your kids, and your grandkids would already be gone by then.`;
-                    } else {
-                        // Safety net (shouldn’t hit): restore
-                        msg = p.dataset.original;
-                    }
-
-                    p.innerHTML = msg;
-                });
-            }
-
-            // Wrap the site’s existing updateAges so changes follow the dial
-            const _updateAges = window.updateAges;
-            window.updateAges = function (currentAge) {
-                _updateAges(currentAge);
-
-                // Compute likely death year from the viewer’s current age
-                const yearsLeft = LIFE_EXPECTANCY - currentAge;
-                const deathYear = CURRENT_YEAR + yearsLeft;
-
-                const marker = ensureMarker();
-                placeMarkerAtYear(marker, deathYear);
-                rewriteFutureBlurbs(currentAge, deathYear);
-            };
-
-            // Run once now in case the page initialized before this script loaded
-            // Try to read the currently selected age from the dial; fallback to 18
-            const dial = document.getElementById('dial');
-            let currentAge = 18;
-            if (dial) {
-                const selected = dial.querySelector('.dial-item[aria-selected="true"]');
-                if (selected) currentAge = parseInt(selected.textContent, 10) || currentAge;
-            }
-            window.updateAges(currentAge);
-        })();
+                const delta = y - deathYear;
+                let msg;
+                if (delta <= GENERATION) {
+                    msg = `You are already gone. But your kids would be ${nf0.format(kidAtY)}.`;
+                } else if (delta <= 2 * GENERATION) {
+                    msg = `You and your kids are already gone. But your grandkids would be ${nf0.format(gkidAtY)}.`;
+                } else {
+                    msg = `You, your kids, and your grandkids are already gone.`;
+                }
+                p.textContent = msg; // simple text (no age-year spans here)
+            });
+        }
 
     </script>
 </body>

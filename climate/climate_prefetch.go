@@ -76,7 +76,7 @@ func main() {
 		fmt.Printf("✔ co2.json (%d points)\n", len(pts))
 	}
 
-	if pts, err := fetchOWID(ctx, "https://ourworldindata.org/grapher/economic-damage-from-natural-disasters.csv", "World"); err != nil {
+	if pts, err := fetchOWID(ctx, "https://ourworldindata.org/grapher/economic-damage-from-natural-disasters.csv", "All disasters"); err != nil {
 		warn("Damages", err)
 	} else if err := writeJSON(filepath.Join(*outDir, "damages.json"), pts); err != nil {
 		warn("Damages write", err)

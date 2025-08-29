@@ -706,10 +706,26 @@
             background: var(--proj);
         }
 
-        /* dotted projection path */
         .chart .projection {
             stroke: var(--proj);
             stroke-dasharray: 6 6;
+            stroke-linecap: round;
+        }
+
+        /* vertical cutoff line & its label */
+        .proj-divider {
+            stroke: var(--proj);
+            stroke-width: 2;
+            opacity: .75;
+        }
+
+        .proj-label {
+            fill: var(--proj);
+            font-weight: 800;
+            font-size: 12px;
+            letter-spacing: .08em;
+            pointer-events: none;
+            /* don't block hover/scroll */
         }
     </style>
 </head>
@@ -1306,6 +1322,17 @@
             });
             svg.appendChild(axis);
 
+            const cutoffXVal = series[series.length - 1].x;
+            const cutoffX = x(cutoffXVal);
+
+            const divider = document.createElementNS(svg.namespaceURI, 'line');
+            divider.setAttribute('x1', cutoffX);
+            divider.setAttribute('x2', cutoffX);
+            divider.setAttribute('y1', PAD);
+            divider.setAttribute('y2', H - PAD);
+            divider.setAttribute('class', 'proj-divider');
+            svg.appendChild(divider);
+
             const toPath = pts => pts.map((p, i) => (i ? 'L' : 'M') + x(p.x) + ',' + y(p.y)).join(' ');
 
             // historical (solid)
@@ -1318,27 +1345,39 @@
             hist.setAttribute('data-line', 'hist');
             svg.appendChild(hist);
 
-            // projection (grey dotted)
             if (proj.length >= 2) {
-                const pth = document.createElementNS(svg.namespaceURI, 'path');
-                pth.setAttribute('d', toPath(proj));
-                pth.setAttribute('fill', 'none');
-                pth.setAttribute('class', 'projection');
-                pth.setAttribute('stroke', 'var(--proj)');
-                pth.setAttribute('stroke-width', '3');
-                pth.setAttribute('stroke-linecap', 'round');
-                pth.setAttribute('stroke-dasharray', '6 6');
-                pth.setAttribute('data-line', 'proj');
-                svg.appendChild(pth);
+                const projPath = document.createElementNS(svg.namespaceURI, 'path');
+                projPath.setAttribute('d', toPath(proj));
+                projPath.setAttribute('fill', 'none');
+                projPath.setAttribute('class', 'projection');
+                projPath.setAttribute('stroke', 'var(--proj)');
+                projPath.setAttribute('stroke-width', '3');
+                projPath.setAttribute('stroke-linecap', 'round');
+                projPath.setAttribute('stroke-dasharray', '6 6'); // <-- ensure dotted
+                projPath.setAttribute('data-line', 'proj');       // for your sequential animation
+                svg.appendChild(projPath);
 
-                // add legend chip if missing
+                // optional: legend chip ...
                 const legend = el.closest('.card, .panel')?.querySelector('.legend');
                 if (legend && !legend.querySelector('.key.proj')) {
                     const chip = document.createElement('span');
                     chip.className = 'swatch';
-                    chip.innerHTML = '<span class="key proj"></span> Projection (likely)';
+                    chip.innerHTML = '<span class="key proj"></span> Projection';
                     legend.appendChild(chip);
                 }
+
+                // --- vertical "PROJECTION" label (rotated, to the right of the divider)
+                const labelX = Math.min(cutoffX + 12, W - PAD - 4);     // stay inside the plot area
+                const labelY = (PAD + (H - PAD)) / 2;                   // vertical center
+                const lbl = document.createElementNS(svg.namespaceURI, 'text');
+                lbl.textContent = 'PROJECTION';
+                lbl.setAttribute('class', 'proj-label');
+                lbl.setAttribute('text-anchor', 'start');
+                lbl.setAttribute('dominant-baseline', 'middle');
+                lbl.setAttribute('x', labelX);
+                lbl.setAttribute('y', labelY);
+                lbl.setAttribute('transform', `rotate(-90 ${labelX} ${labelY})`);
+                svg.appendChild(lbl);
             }
 
             // prep & animate sequentially when in view

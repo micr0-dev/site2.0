@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#16a34a" />
+    <title>I am [age] — How climate change will shape my life</title>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        :root {
+            --bg: #ffffff;
+            --fg: #111;
+            --muted: #666;
+            --line: #e5e7eb;
+            --accent: hsl(150 60% 40%);
+            /* will morph to brown on scroll */
+            --accent-2: hsl(32 85% 52%);
+            /* warm highlight */
+            --soft: #f7f7f8;
+
+            /* Age dial sizing */
+            --dial-h: 96px;
+            /* smaller vertical footprint */
+            --item-h: 32px;
+            /* number height */
+            --item-gap: 12px;
+            /* spacing between numbers */
+            --radius: 12px;
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        html,
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--fg);
+            font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji"
+        }
+
+        h1,
+        h2,
+        h3 {
+            font-weight: 800;
+            letter-spacing: -.02em;
+            margin: 0 0 .5rem
+        }
+
+        h1 {
+            font-size: clamp(2rem, 4vw, 3.2rem);
+            line-height: 1.15
+        }
+
+        h2 {
+            font-size: clamp(1.5rem, 2.5vw, 2rem)
+        }
+
+        h3 {
+            font-size: clamp(1.1rem, 2vw, 1.35rem)
+        }
+
+        p {
+            line-height: 1.65
+        }
+
+        .muted {
+            color: var(--muted)
+        }
+
+        .tiny {
+            font-size: .9rem
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 1rem 1.25rem
+        }
+
+        /* Simple hero (no sticky) */
+        .hero {
+            padding: 2.25rem 0 1rem
+        }
+
+        .kicker {
+            display: inline-block;
+            padding: .35rem .7rem;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            background: var(--soft);
+            font-weight: 600
+        }
+
+        /* Age inline dial */
+        .age-inline {
+            display: inline-flex;
+            gap: .6rem;
+            align-items: center;
+            white-space: nowrap;
+            vertical-align: baseline
+        }
+
+        .dial {
+            --item-total: calc(var(--item-h) + var(--item-gap));
+            height: var(--dial-h);
+            width: 88px;
+            /* slimmer so headline keeps one line more often */
+            border: 1px solid var(--line);
+            border-radius: 26px;
+            background: var(--bg);
+            position: relative;
+            overflow: auto;
+            scroll-snap-type: y mandatory;
+            padding-block: calc(var(--dial-h)/2 - var(--item-total)/2);
+            scrollbar-width: none;
+        }
+
+        .dial::-webkit-scrollbar {
+            display: none
+        }
+
+        .dial-track {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch
+        }
+
+        .dial-item {
+            height: var(--item-h);
+            margin-block: calc(var(--item-gap)/2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-variant-numeric: tabular-nums;
+            scroll-snap-align: center;
+            user-select: none;
+            transition: transform .15s ease, opacity .15s ease, font-weight .15s ease, background-color .15s ease;
+            border-radius: 10px;
+            padding-inline: .25rem;
+        }
+
+        .dial-item[data-selected="true"] {
+            font-weight: 800 !important;
+            transform: scale(1.1);
+        }
+
+        .dial-item[data-near="true"] {
+            font-weight: 600;
+            opacity: .85
+        }
+
+        .dial-item[data-near="false"] {
+            font-weight: 600;
+            opacity: .5
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative
+        }
+
+        .timeline::before {
+            content: "";
+            position: absolute;
+            left: calc(50% - .5px);
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: var(--line)
+        }
+
+        @media (max-width:880px) {
+            .timeline::before {
+                left: 1rem
+            }
+        }
+
+        .t-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2.5rem;
+            align-items: start;
+            padding: 3rem 0;
+            position: relative
+        }
+
+        .t-year {
+            position: sticky;
+            top: 1.25rem;
+            align-self: start
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem;
+            font-weight: 700;
+            border: 1px solid var(--line);
+            padding: .35rem .7rem;
+            border-radius: 999px;
+            background: var(--bg)
+        }
+
+        .dot {
+            width: .65rem;
+            height: .65rem;
+            background: var(--accent);
+            border-radius: 999px;
+            box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 18%, transparent)
+        }
+
+        .panel {
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            padding: 1.35rem;
+            background: var(--bg);
+            box-shadow: 0 5px 30px rgba(0, 0, 0, .04)
+        }
+
+        .chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: .5rem;
+            margin: .75rem 0
+        }
+
+        .chip {
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            padding: .25rem .6rem;
+            font-size: .9rem
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 1.35rem
+        }
+
+        /* more space between cards */
+        .col-6 {
+            grid-column: span 6
+        }
+
+        .col-4 {
+            grid-column: span 4
+        }
+
+        .col-8 {
+            grid-column: span 8
+        }
+
+        .col-12 {
+            grid-column: 1/-1
+        }
+
+        @media (max-width:880px) {
+            .grid {
+                grid-template-columns: repeat(6, 1fr)
+            }
+
+            .col-6,
+            .col-4,
+            .col-8 {
+                grid-column: 1/-1
+            }
+        }
+
+        .card {
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            padding: 1rem;
+            background: var(--soft)
+        }
+
+        .card h3 {
+            margin-bottom: .25rem
+        }
+
+        .eyebrow {
+            font-size: .8rem;
+            font-weight: 700;
+            color: var(--muted);
+            letter-spacing: .08em;
+            text-transform: uppercase
+        }
+
+        /* Charts */
+        .chart {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: var(--bg);
+            border: 1px dashed var(--line);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            padding: .5rem
+        }
+
+        .chart svg {
+            width: 100%;
+            height: 100%
+        }
+
+        .legend {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-top: .5rem
+        }
+
+        .swatch {
+            display: inline-flex;
+            align-items: center;
+            gap: .35rem
+        }
+
+        .key {
+            width: .9rem;
+            height: .9rem;
+            border-radius: 2px;
+            background: var(--accent)
+        }
+
+        .key.alt {
+            background: var(--accent-2)
+        }
+
+        .note {
+            font-size: .9rem;
+            color: var(--muted)
+        }
+
+        /* Footer & socials */
+        .footer {
+            padding: 3rem 0;
+            border-top: 1px solid var(--line)
+        }
+
+        .footgrid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem
+        }
+
+        @media (max-width:880px) {
+            .footgrid {
+                grid-template-columns: 1fr
+            }
+        }
+
+        .socials a {
+            color: var(--accent);
+            text-decoration: none;
+            border-bottom: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+            padding-bottom: 1px
+        }
+
+        .socials a:hover {
+            border-color: var(--accent)
+        }
+
+        /* Reveal on scroll */
+        .reveal {
+            opacity: 0;
+            transform: translateY(12px);
+            transition: opacity .9s ease, transform .9s ease
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: none
+        }
+
+        /* Little skull at the very end */
+        .finis {
+            display: flex;
+            gap: .6rem;
+            align-items: center;
+            justify-content: center;
+            color: #8b5e3c
+        }
+
+        /* ---------- New: nice buttons, tabs, sources grid, toasts ---------- */
+        .btn-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: .6rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem;
+            padding: .55rem .9rem;
+            border-radius: 999px;
+            border: 1px solid color-mix(in srgb, var(--accent) 55%, var(--line));
+            background: color-mix(in srgb, var(--accent) 12%, #fff);
+            color: var(--fg);
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform .12s ease, box-shadow .12s ease, background .12s ease, border-color .12s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, .06);
+            background: color-mix(in srgb, var(--accent) 18%, #fff);
+        }
+
+        .btn.secondary {
+            background: #fff;
+            border-color: var(--line);
+        }
+
+        .btn i {
+            font-size: 1rem;
+        }
+
+        .tabs {
+            display: inline-flex;
+            gap: .4rem;
+            border: 1px solid var(--line);
+            padding: .35rem;
+            border-radius: 999px;
+            background: #fff;
+        }
+
+        .tab {
+            appearance: none;
+            border: 0;
+            background: transparent;
+            padding: .45rem .8rem;
+            border-radius: 999px;
+            font-weight: 700;
+            cursor: pointer;
+            color: var(--muted);
+            outline: none;
+        }
+
+        .tab[aria-selected="true"] {
+            background: color-mix(in srgb, var(--accent) 15%, #fff);
+            color: var(--fg);
+            box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent);
+        }
+
+        .tab-panels>[role="tabpanel"] {
+            margin-top: 1rem;
+        }
+
+        .source-list {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: .8rem;
+        }
+
+        @media (max-width: 700px) {
+            .source-list {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .source-card {
+            display: flex;
+            align-items: start;
+            gap: .75rem;
+            padding: .9rem;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            background: #fff;
+            text-decoration: none;
+            color: inherit;
+            transition: background .12s ease, transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+        }
+
+        .source-card:hover {
+            background: color-mix(in srgb, var(--accent) 8%, #fff);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, .06);
+            border-color: color-mix(in srgb, var(--accent) 35%, var(--line));
+        }
+
+        .source-card i {
+            color: var(--accent);
+            margin-top: .15rem;
+        }
+
+        .source-title {
+            font-weight: 800;
+        }
+
+        .source-desc {
+            color: var(--muted);
+            font-size: .9rem;
+        }
+
+        .toast {
+            position: fixed;
+            left: 50%;
+            bottom: 20px;
+            transform: translateX(-50%);
+            background: #111;
+            color: #fff;
+            padding: .6rem .9rem;
+            border-radius: 999px;
+            font-size: .9rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .25s ease, transform .25s ease;
+            z-index: 9999;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(-4px);
+        }
+
+        @media print {
+
+            .btn,
+            .tabs,
+            .socials,
+            .source-desc {
+                display: none !important;
+            }
+
+            .source-list {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main class="container">
+        <section class="hero">
+            <h1>
+                I am
+                <span class="age-inline">
+                    <span id="dial" class="dial" aria-label="Select your age (10 to 85)" role="listbox"></span>
+                </span>
+                . Here’s how climate change is likely to shape the rest of my life.
+            </h1>
+            <p class="muted tiny" style="margin-top:.5rem">Tip: scroll or flick the dial · press ↑/↓ with focus</p>
+        </section>
+
+        <section class="timeline" id="timeline">
+            <!-- 2025s / Near-term -->
+            <div class="t-row">
+                <div class="t-year">
+                    <span class="badge"><span class="dot"></span> <span>2025–2029</span></span>
+                    <h2>Now through the late 2020s</h2>
+                    <p class="muted">You’re <strong><span class="age-year" data-year="2025"></span></strong> today.</p>
+                </div>
+                <div class="panel reveal">
+                    <div class="chips">
+                        <span class="chip"><i class="fa-solid fa-temperature-high"></i> hotter baselines</span>
+                        <span class="chip"><i class="fa-solid fa-house-crack"></i> insurance pullback</span>
+                        <span class="chip"><i class="fa-solid fa-wheat-awn"></i> food price shocks</span>
+                    </div>
+                    <div class="grid">
+                        <div class="col-6 card">
+                            <h3>Heat & extremes are the new normal</h3>
+                            <p>Recent years have been record-hot. Expect more “once-in-a-century” floods and heat domes
+                                to show up as regular news. Cooling costs and lost outdoor time rise.</p>
+                            <p class="note">Real-world data is below.</p>
+                        </div>
+                        <div class="col-6 card">
+                            <h3>Insurance & risk shift</h3>
+                            <p>Insurers raise rates or exit high-risk areas in many regions; mortgages and rents
+                                increasingly reflect climate exposure.</p>
+                        </div>
+                        <div class="col-12 card">
+                            <div class="eyebrow">Global temperature (NASA GISTEMP v4)</div>
+                            <h3>Temperature anomalies vs 1951–1980</h3>
+                            <div id="tempChart" class="chart" role="img"
+                                aria-label="Line chart: global temperature anomaly, NASA GISTEMP v4, 1880–present (baseline 1951–1980).">
+                            </div>
+                            <div class="legend tiny">
+                                <span class="swatch"><span class="key"></span> GISTEMP global annual</span>
+                            </div>
+                            <p class="note">Paris targets (1.5 °C/2.0 °C) are defined vs 1850–1900; GISTEMP’s baseline
+                                is 1951–1980 (≈0.2–0.3 °C lower). See notes in Sources.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2030s -->
+            <div class="t-row">
+                <div class="t-year">
+                    <span class="badge"><span class="dot"></span> <span>2030s</span></span>
+                    <h2>By the 2030s</h2>
+                    <p class="muted">You’ll be about <strong><span class="age-year" data-year="2030"></span></strong> in
+                        2030 and <strong><span class="age-year" data-year="2039"></span></strong> in 2039.</p>
+                </div>
+                <div class="panel reveal">
+                    <div class="chips">
+                        <span class="chip"><i class="fa-solid fa-person-walking-arrow-right"></i> migration
+                            begins</span>
+                        <span class="chip"><i class="fa-solid fa-sun"></i> dangerous heat days</span>
+                        <span class="chip"><i class="fa-solid fa-bowl-food"></i> crop volatility</span>
+                    </div>
+                    <div class="grid">
+                        <div class="col-6 card">
+                            <h3>Permanent 1.5 °C breach risk</h3>
+                            <p>Multi-year averages likely sit near or above 1.5 °C over pre-industrial, raising the odds
+                                of compounding heat and humidity that strain public health and labor.</p>
+                        </div>
+                        <div class="col-6 card">
+                            <h3>Coasts get louder</h3>
+                            <p>“Nuisance” floods stack with storm surges. Ad-hoc relocations (“managed retreat”) start
+                                in more places.</p>
+                        </div>
+                        <div class="col-12 card">
+                            <div class="eyebrow">Global mean sea level (NASA/JPL)</div>
+                            <h3>Sea level change since 1993 (mm)</h3>
+                            <div id="slrChart" class="chart" role="img"
+                                aria-label="Line chart: global mean sea level change since 1993 in millimeters, NASA/JPL MEaSUREs.">
+                            </div>
+                            <div class="legend tiny">
+                                <span class="swatch"><span class="key"></span> Smoothed GMSL (GIA applied)</span>
+                            </div>
+                            <p class="note">Satellite altimetry record; seasonal signals removed (NASA MEaSUREs, Column
+                                12).</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2040s -->
+            <div class="t-row">
+                <div class="t-year">
+                    <span class="badge"><span class="dot"></span> <span>2040s</span></span>
+                    <h2>The 2040s</h2>
+                    <p class="muted">You’re roughly <strong><span class="age-year" data-year="2045"></span></strong> in
+                        the middle of this decade.</p>
+                </div>
+                <div class="panel reveal">
+                    <div class="chips">
+                        <span class="chip"><i class="fa-solid fa-cloud-bolt"></i> compounding disasters</span>
+                        <span class="chip"><i class="fa-solid fa-industry"></i> grid + supply shocks</span>
+                        <span class="chip"><i class="fa-solid fa-people-group"></i> displacement scales up</span>
+                    </div>
+                    <div class="grid">
+                        <div class="col-6 card">
+                            <h3>Food & water stress bite</h3>
+                            <p>Simultaneous crop failures become more common when heat and drought cluster. Prices
+                                swing; rationing appears during bad years even in wealthy countries.</p>
+                        </div>
+                        <div class="col-6 card">
+                            <h3>Smoke, heat, outages</h3>
+                            <p>Wildfire smoke and extreme heat drive indoor summers in many regions. Energy and
+                                logistics disruptions interrupt jobs, schooling, and care.</p>
+                        </div>
+                        <div class="col-12 card">
+                            <div class="eyebrow">Mini dashboard — data-backed</div>
+                            <!-- Tabs -->
+                            <div class="tabs" role="tablist" aria-label="Mini dashboard tabs">
+                                <button id="tab-co2" class="tab" role="tab" aria-selected="true"
+                                    aria-controls="panel-co2"><i class="fa-solid fa-cloud-arrow-up"></i> Global
+                                    CO₂</button>
+                                <button id="tab-damage" class="tab" role="tab" aria-selected="false"
+                                    aria-controls="panel-damage"><i class="fa-solid fa-coins"></i> Disaster
+                                    damages</button>
+                                <button id="tab-idp" class="tab" role="tab" aria-selected="false"
+                                    aria-controls="panel-idp"><i class="fa-solid fa-person-walking-luggage"></i> New
+                                    displacements</button>
+                            </div>
+                            <div class="tab-panels">
+                                <div id="panel-co2" role="tabpanel" tabindex="0" aria-labelledby="tab-co2">
+                                    <div id="co2Chart" class="chart"
+                                        aria-label="Line chart: Global CO₂ emissions including land-use change (Global Carbon Project via Our World in Data).">
+                                    </div>
+                                    <p class="note">Source: Global Carbon Project via Our World in Data.</p>
+                                </div>
+                                <div id="panel-damage" role="tabpanel" tabindex="0" aria-labelledby="tab-damage" hidden>
+                                    <div id="damageChart" class="chart"
+                                        aria-label="Line chart: Global economic damages from natural disasters, EM-DAT via Our World in Data.">
+                                    </div>
+                                    <p class="note">Source: EM-DAT via Our World in Data (not inflation-adjusted).</p>
+                                </div>
+                                <div id="panel-idp" role="tabpanel" tabindex="0" aria-labelledby="tab-idp" hidden>
+                                    <div id="idpChart" class="chart"
+                                        aria-label="Line chart: Global new internal displacements from disasters (IDMC via World Bank / OWID).">
+                                    </div>
+                                    <p class="note">Source: IDMC via World Bank / Our World in Data.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 card" style="background:#fff4f4">
+                            <h3><i class="fa-solid fa-children"></i> The hard question</h3>
+                            <p><em>“If you have kids, they ask why you brought them into this world.”</em> You might not
+                                have a good answer. That’s part of the honesty here: facing trade-offs between hope,
+                                action, and responsibility—then doing the most good you can with clear eyes and a steady
+                                hand.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2050s -->
+            <div class="t-row">
+                <div class="t-year">
+                    <span class="badge"><span class="dot"></span> <span>2050s</span></span>
+                    <h2>Mid-century</h2>
+                    <p class="muted">You’re about <strong><span class="age-year" data-year="2050"></span></strong> in
+                        2050.</p>
+                </div>
+                <div class="panel reveal">
+                    <div class="chips">
+                        <span class="chip"><i class="fa-solid fa-water"></i> higher baseline seas</span>
+                        <span class="chip"><i class="fa-solid fa-fish"></i> reefs functionally gone</span>
+                        <span class="chip"><i class="fa-solid fa-icicles"></i> ice loss accelerates</span>
+                    </div>
+                    <div class="grid">
+                        <div class="col-6 card">
+                            <h3>Coastal risk re-maps cities</h3>
+                            <p>With multi-decadal sea-level rise, storm tides reach farther inland. Some districts are
+                                protected by expensive barriers; others are abandoned.</p>
+                        </div>
+                        <div class="col-6 card">
+                            <h3>Ecosystems flip</h3>
+                            <p>Many coral reefs are gone; forests shift toward savanna in some regions. Fisheries,
+                                tourism, and local food webs change permanently.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2060s–2070s -->
+            <div class="t-row">
+                <div class="t-year">
+                    <span class="badge"><span class="dot"></span> <span>2060s–2070s</span></span>
+                    <h2>Later life, higher stakes</h2>
+                    <p class="muted">You’re roughly <strong><span class="age-year" data-year="2070"></span></strong> by
+                        2070.</p>
+                </div>
+                <div class="panel reveal">
+                    <div class="chips">
+                        <span class="chip"><i class="fa-solid fa-arrows-rotate"></i> ocean circulation weaker</span>
+                        <span class="chip"><i class="fa-solid fa-tractor"></i> adaptation limits</span>
+                        <span class="chip"><i class="fa-solid fa-city"></i> managed retreat</span>
+                    </div>
+                    <div class="grid">
+                        <div class="col-12 card">
+                            <h3>Compounding risk world</h3>
+                            <p>Heat, water, crops, coasts, ecosystems—multiple systems strain at once. Not everywhere,
+                                not all the time, but often enough to define the decade.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2100 & finis -->
+            <div class="t-row">
+                <div class="t-year">
+                    <span class="badge"><span class="dot"></span> <span>2100</span></span>
+                    <h2>End-of-century horizon</h2>
+                    <p class="muted">If you reach it, you’d be around <strong><span class="age-year"
+                                data-year="2100"></span></strong>.</p>
+                </div>
+                <div class="panel reveal">
+                    <div class="chips">
+                        <span class="chip"><i class="fa-solid fa-mountain"></i> higher seas locked in</span>
+                        <span class="chip"><i class="fa-solid fa-temperature-three-quarters"></i> 2–3 °C world
+                            plausible</span>
+                        <span class="chip"><i class="fa-solid fa-leaf"></i> tipping risks accumulate</span>
+                    </div>
+                    <div class="grid">
+                        <div class="col-12 card">
+                            <p>The direction is not in doubt; the scale depends on choices. Your world will differ from
+                                the one you were born into—how much depends on what people do, together, starting now.
+                            </p>
+                        </div>
+                        <div class="col-12 finis tiny"><i class="fa-solid fa-skull"></i> eventually, every timeline ends
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="footer">
+            <div class="footgrid">
+                <div>
+                    <h3>What this is</h3>
+                    <p>A minimalist, interactive overview of likely life-scale climate impacts. Matter-of-fact tone.
+                        Charts use real datasets. Accessible without a science degree.</p>
+                </div>
+                <div>
+                    <h3>Credible sources to explore</h3>
+                    <div class="source-list tiny" aria-label="Key data sources">
+                        <a class="source-card" href="https://data.giss.nasa.gov/gistemp/" target="_blank"
+                            rel="noopener">
+                            <i class="fa-solid fa-temperature-three-quarters"></i>
+                            <div>
+                                <div class="source-title">NASA GISTEMP v4</div>
+                                <div class="source-desc">Global temperature anomalies & methodology</div>
+                            </div>
+                        </a>
+                        <a class="source-card"
+                            href="https://sealevel.nasa.gov/understanding-sea-level/key-indicators/global-mean-sea-level"
+                            target="_blank" rel="noopener">
+                            <i class="fa-solid fa-water"></i>
+                            <div>
+                                <div class="source-title">NASA/JPL Sea Level Change</div>
+                                <div class="source-desc">Global mean sea level (altimetry)</div>
+                            </div>
+                        </a>
+                        <a class="source-card" href="https://ourworldindata.org/co2-emissions" target="_blank"
+                            rel="noopener">
+                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                            <div>
+                                <div class="source-title">Global Carbon Project (OWID)</div>
+                                <div class="source-desc">CO₂ emissions incl. land-use change</div>
+                            </div>
+                        </a>
+                        <a class="source-card" href="https://ourworldindata.org/natural-disasters" target="_blank"
+                            rel="noopener">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                            <div>
+                                <div class="source-title">EM-DAT & IDMC (OWID)</div>
+                                <div class="source-desc">Disasters, damages & displacement</div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="btn-row" style="margin-top:1rem">
+                        <button class="btn" id="shareBtn"><i class="fa-solid fa-share-nodes"></i>
+                            Share</button>
+                        <button class="btn secondary" id="printBtn"><i class="fa-solid fa-print"></i>
+                            Print</button>
+
+                    </div>
+                </div>
+            </div>
+            <p class="tiny muted" style="margin-top:1rem">Built with plain HTML, CSS, and a touch of JS. No frameworks.
+            </p>
+
+            <div class="socials tiny" style="margin-top:1rem">
+                <strong>More from me:</strong>
+                &nbsp; <a href="https://micr0.dev" target="blank" rel="noopener"><i class="fa-solid fa-link"></i>
+                    micr0.dev</a>
+                &nbsp; <a href="https://wetdry.world/@micr0" target="_blank" rel="me noopener"><i
+                        class="fa-brands fa-mastodon"></i> Mastodon</a>
+                &nbsp; <a href="https://github.com/micr0-dev/" target="_blank" rel="noopener"><i
+                        class="fa-brands fa-github"></i> GitHub</a>
+            </div>
+        </section>
+    </main>
+
+    <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
+    <script>
+        /* ---------- Config & helpers ---------- */
+        const CURRENT_YEAR = 2025;
+
+        const nfCompact = new Intl.NumberFormat(undefined, { notation: 'compact', maximumFractionDigits: 1 });
+        const nf0 = new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 });
+        const nf1 = new Intl.NumberFormat(undefined, { maximumFractionDigits: 1 });
+        const compact = v => nfCompact.format(v);
+        const compactCurrency = v => '$' + nfCompact.format(v); // -> $16B, $250M, etc.
+
+        function mkSVG(w = 800, h = 450) {
+            const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            s.setAttribute('viewBox', `0 0 ${w} ${h}`); s.setAttribute('role', 'img'); return s;
+        }
+        function linePath(points) { return points.map((p, i) => (i ? 'L' : 'M') + p[0] + ',' + p[1]).join(' '); }
+        function niceAxis(min, max, steps) {
+            const span = max - min; const step = span / steps; const ticks = [];
+            for (let i = 0; i <= steps; i++) ticks.push(min + i * step);
+            return ticks;
+        }
+        function setAccentByScroll() {
+            const scrollTop = window.scrollY;
+            const docHeight = document.body.scrollHeight - window.innerHeight;
+            const t = Math.min(1, Math.max(0, docHeight ? scrollTop / docHeight : 0));
+            // green (h=150) -> brown (h=24)
+            const h = 150 - (150 - 24) * t, s = 65 - 5 * t, l = 42 - 2 * t;
+            document.documentElement.style.setProperty('--accent', `hsl(${h} ${s}% ${l}%)`);
+            // warm complementary accent-2
+            document.documentElement.style.setProperty('--accent-2', `hsl(${Math.max(0, h - 18)} 82% 52%)`);
+        }
+
+        /* ---------- Age dial (cover-flow style, compact) ---------- */
+        const dialEl = document.getElementById('dial');
+        const MIN_AGE = 10, MAX_AGE = 85, START_AGE = 18;
+        const ITEM_H = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--item-h'));
+        const ITEM_GAP = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--item-gap'));
+        const ITEM_TOTAL = ITEM_H + ITEM_GAP;
+
+        (function buildDial() {
+            const track = document.createElement('div'); track.className = 'dial-track'; dialEl.appendChild(track);
+            for (let a = MIN_AGE; a <= MAX_AGE; a++) {
+                const it = document.createElement('div'); it.className = 'dial-item'; it.textContent = a; it.setAttribute('role', 'option'); it.dataset.value = a;
+                track.appendChild(it);
+            }
+            // center the start age
+            const idx = START_AGE - MIN_AGE;
+            dialEl.scrollTop = idx * ITEM_TOTAL;
+
+            const updateSel = () => {
+                const idx = Math.round(dialEl.scrollTop / ITEM_TOTAL);
+                const selAge = Math.min(MAX_AGE, Math.max(MIN_AGE, MIN_AGE + idx));
+                [...dialEl.querySelectorAll('.dial-item')].forEach((el, i) => {
+                    el.dataset.selected = (i === idx);
+                    el.dataset.near = (Math.abs(i - idx) <= 1);
+                    el.setAttribute('aria-selected', i === idx ? 'true' : 'false');
+                });
+                updateAges(selAge);
+            };
+
+            const snapToIdx = (idx) => {
+                dialEl.scrollTo({ top: idx * ITEM_TOTAL, behavior: 'smooth' });
+            };
+
+            let scrollTimeout;
+            dialEl.addEventListener('scroll', () => {
+                updateSel();
+                clearTimeout(scrollTimeout);
+                scrollTimeout = setTimeout(() => {
+                    const idx = Math.round(dialEl.scrollTop / ITEM_TOTAL);
+                    snapToIdx(idx);
+                }, 80);
+            }, { passive: true });
+
+            dialEl.addEventListener('keydown', (e) => {
+                const idx = Math.round(dialEl.scrollTop / ITEM_TOTAL);
+                if (e.key === 'ArrowUp') { e.preventDefault(); snapToIdx(Math.max(0, idx - 1)); }
+                if (e.key === 'ArrowDown') { e.preventDefault(); snapToIdx(Math.min(MAX_AGE - MIN_AGE, idx + 1)); }
+            });
+
+            // allow click to jump
+            dialEl.addEventListener('click', (e) => {
+                const item = e.target.closest('.dial-item'); if (!item) return;
+                const a = parseInt(item.dataset.value, 10);
+                snapToIdx(a - MIN_AGE);
+            });
+
+            updateSel();
+        })();
+
+        /* ---------- Age text updates ---------- */
+        function updateAges(currentAge) {
+            document.querySelectorAll('.age-year').forEach(el => {
+                const y = parseInt(el.getAttribute('data-year'), 10);
+                const computed = Math.max(0, currentAge + (y - CURRENT_YEAR));
+                el.textContent = computed;
+            });
+            // keep the document title in sync with the dial
+            document.title = `I am ${currentAge} — How climate change will shape my life`;
+        }
+
+
+        /* ---------- Reveal on scroll ---------- */
+        const io = new IntersectionObserver(entries => {
+            entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+        }, { threshold: .08 });
+        document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+        /* ---------- Share / Print ---------- */
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 1600);
+        }
+
+        function setupShare(btnId) {
+            const btn = document.getElementById(btnId);
+            if (!btn) return;
+            btn.addEventListener('click', async () => {
+                try {
+                    const shareData = { title: document.title, text: 'A life-scale climate overview worth sharing.', url: location.href };
+                    if (navigator.share) {
+                        await navigator.share(shareData);
+                    } else {
+                        await navigator.clipboard.writeText(location.href);
+                        showToast('Link copied');
+                    }
+                } catch (e) {
+                    await navigator.clipboard.writeText(location.href);
+                    showToast('Link copied');
+                }
+            });
+        }
+
+        document.getElementById('printBtn')?.addEventListener('click', () => window.print());
+        document.getElementById('printBtnBottom')?.addEventListener('click', () => window.print());
+        setupShare('shareBtn');
+        setupShare('shareBtnBottom');
+
+        /* ---------- Scroll accent + position restore ---------- */
+        setAccentByScroll();
+        window.addEventListener('scroll', () => { setAccentByScroll(); sessionStorage.setItem('scrollY', String(window.scrollY)); }, { passive: true });
+        window.addEventListener('load', () => {
+            // restore position (same-tab revisit)
+            const y = parseFloat(sessionStorage.getItem('scrollY') || '0');
+            if (!isNaN(y)) window.scrollTo({ top: y, behavior: 'instant' });
+        });
+
+        /* ---------- Real-data charts ---------- */
+        /* ---- Line animation helpers ---- */
+        function resetPath(path) {
+            const len = path.getTotalLength();
+            path.style.transition = 'none';
+            path.style.strokeDasharray = String(len);
+            path.style.strokeDashoffset = String(len);
+        }
+
+        function animatePath(path, ms = 1600) {
+            const len = path.getTotalLength();
+            // reset first
+            path.style.transition = 'none';
+            path.style.strokeDasharray = String(len);
+            path.style.strokeDashoffset = String(len);
+            // trigger
+            path.getBoundingClientRect(); // reflow
+            requestAnimationFrame(() => {
+                path.style.transition = `stroke-dashoffset ${ms}ms ease`;
+                path.style.strokeDashoffset = '0';
+            });
+        }
+
+        /* Observe .chart containers and re-animate whenever they enter view */
+        const chartObserver = new IntersectionObserver(entries => {
+            entries.forEach(e => {
+                const path = e.target.querySelector('path');
+                if (!path) return;
+                if (e.isIntersecting) {
+                    animatePath(path);
+                } else {
+                    // prepare for next time it comes back
+                    resetPath(path);
+                }
+            });
+        }, { threshold: 0.35 });
+        function renderLine(elId, series, { fmtY = (v) => v.toFixed(2), yMin = null, yMax = null } = {}) {
+            const el = document.getElementById(elId); el.innerHTML = '';
+            if (!series || series.length === 0) {
+                el.innerHTML = '<div class="tiny muted">Data unavailable (CORS or offline). See Sources below.</div>';
+                return;
+            }
+
+            const svg = mkSVG(); el.appendChild(svg);
+            const W = 800, H = 450, PAD = 60; svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+            const xs = series.map(d => d.x), ys = series.map(d => d.y);
+            const minX = Math.min(...xs), maxX = Math.max(...xs);
+            const minY = yMin !== null ? yMin : Math.min(...ys);
+            const maxY = yMax !== null ? yMax : Math.max(...ys);
+
+            const x = v => PAD + ((v - minX) / (maxX - minX)) * (W - 2 * PAD);
+            const y = v => H - PAD - ((v - minY) / (maxY - minY)) * (H - 2 * PAD);
+
+            // grid
+            const g = document.createElementNS(svg.namespaceURI, 'g');
+            g.setAttribute('stroke', '#e5e7eb'); g.setAttribute('stroke-width', '1'); g.setAttribute('fill', 'none');
+            for (let i = 0; i < 6; i++) {
+                const gy = y(minY + i * (maxY - minY) / 5);
+                const ln = document.createElementNS(svg.namespaceURI, 'line');
+                ln.setAttribute('x1', PAD); ln.setAttribute('x2', W - (PAD));
+                ln.setAttribute('y1', gy); ln.setAttribute('y2', gy);
+                g.appendChild(ln);
+            }
+            svg.appendChild(g);
+
+            // axes labels
+            const axis = document.createElementNS(svg.namespaceURI, 'g');
+            const xTicks = niceAxis(minX, maxX, 6).map(v => Math.round(v));
+            xTicks.forEach(v => {
+                const tx = document.createElementNS(svg.namespaceURI, 'text');
+                tx.setAttribute('x', x(v)); tx.setAttribute('y', H - PAD + 24);
+                tx.setAttribute('text-anchor', 'middle'); tx.setAttribute('font-size', '12'); tx.textContent = Math.round(v);
+                axis.appendChild(tx);
+            });
+            const yTicks = niceAxis(minY, maxY, 5);
+            yTicks.forEach(v => {
+                const ty = document.createElementNS(svg.namespaceURI, 'text');
+                ty.setAttribute('x', PAD - 10); ty.setAttribute('y', y(v) + 4);
+                ty.setAttribute('text-anchor', 'end'); ty.setAttribute('font-size', '12'); ty.textContent = fmtY(v);
+                axis.appendChild(ty);
+            });
+            svg.appendChild(axis);
+
+            // path
+            const pts = series.map(d => [x(d.x), y(d.y)]);
+            const path = document.createElementNS(svg.namespaceURI, 'path');
+            path.setAttribute('d', pts.map((p, i) => (i ? 'L' : 'M') + p[0] + ',' + p[1]).join(' '));
+            path.setAttribute('fill', 'none');
+            path.setAttribute('stroke', getComputedStyle(document.documentElement).getPropertyValue('--accent').trim());
+            path.setAttribute('stroke-width', '3'); path.setAttribute('stroke-linecap', 'round');
+            svg.appendChild(path);
+
+            // prepare & animate
+            resetPath(path);
+            chartObserver.observe(el);               // re-animate whenever it re-enters view
+            // also animate now if it's already on screen
+            const r = el.getBoundingClientRect();
+            const inView = r.top < window.innerHeight * 0.8 && r.bottom > window.innerHeight * 0.2;
+            if (inView) animatePath(path);
+        }
+
+
+        /* Data loaders with graceful fallback links in console */
+        async function loadGISTEMP() {
+            const url = 'https://data.giss.nasa.gov/gistemp//tabledata_v4/ZonAnn.Ts%2BdSST.txt';
+            const txt = await fetch(url).then(r => r.text());
+            const lines = txt.split(/\r?\n/).filter(l => /^\s*\d{4}/.test(l));
+            const data = lines.map(l => {
+                const parts = l.trim().split(/\s+/);
+                const year = +parts[0], glob = +parts[1] * 0.01;
+                return { x: year, y: glob };
+            }).filter(d => d.x >= 1880);
+            renderLine('tempChart', data, { fmtY: v => v.toFixed(2) });
+        }
+
+        async function loadSeaLevel() {
+            const url = 'https://climate.nasa.gov/system/internal_resources/details/original/121_Global_Sea_Level_Data_File.txt';
+            const txt = await fetch(url).then(r => r.text());
+            const lines = txt.split(/\r?\n/).filter(l => /^\s*(\d|\-)/.test(l) && !/^HDR/.test(l));
+            const data = [];
+            for (const l of lines) {
+                const p = l.trim().split(/\s+/);
+                if (p.length < 12) continue;
+                const yearFrac = +p[2], gmsl = +p[11];
+                if (!isFinite(yearFrac) || !isFinite(gmsl) || Math.abs(gmsl) >= 9e4) continue;
+                data.push({ x: yearFrac, y: gmsl });
+            }
+            renderLine('slrChart', data, { fmtY: v => nf0.format(v) });
+        }
+
+        async function loadCO2(targetId = 'co2Chart') {
+            try {
+                const url = 'https://ourworldindata.org/grapher/annual-co2-including-land-use.csv';
+                const csv = await fetch(url).then(r => r.text());
+                const rows = csv.trim().split(/\r?\n/).map(r => r.split(','));
+                const head = rows.shift();
+                const entityIdx = head.indexOf('Entity'), yearIdx = head.indexOf('Year'), valIdx = head.length - 1;
+                const data = rows.filter(r => r[entityIdx] === 'World').map(r => ({ x: +r[yearIdx], y: +r[valIdx] })).filter(d => d.x >= 1959);
+                renderLine(targetId, data, { fmtY: v => nf1.format(v) }); // GtCO₂/yr ~ 36.8
+            } catch (e) {
+                document.getElementById(targetId).innerHTML = '<div class="tiny muted">CO₂ data blocked (CORS/offline). <a class="inline" target="_blank" href="https://ourworldindata.org/co2-emissions">Open source</a>.</div>';
+            }
+        }
+
+        async function loadDisasterDamage(targetId = 'damageChart') {
+            try {
+                const url = 'https://ourworldindata.org/grapher/economic-damage-from-natural-disasters.csv';
+                const csv = await fetch(url).then(r => r.text());
+                const rows = csv.trim().split(/\r?\n/).map(r => r.split(','));
+                const head = rows.shift();
+                const entityIdx = head.indexOf('Entity'), yearIdx = head.indexOf('Year'), valIdx = head.length - 1;
+                const data = rows.filter(r => r[entityIdx] === 'World').map(r => ({ x: +r[yearIdx], y: +r[valIdx] })).filter(d => isFinite(d.y) && d.x >= 1960);
+                renderLine(targetId, data, { fmtY: v => compactCurrency(v), yMin: 0 });
+            } catch (e) {
+                document.getElementById(targetId).innerHTML = '<div class="tiny muted">Disaster damage data blocked (CORS/offline). <a class="inline" target="_blank" href="https://ourworldindata.org/natural-disasters">Open source</a>.</div>';
+            }
+        }
+
+        async function loadIDP(targetId = 'idpChart') {
+            try {
+                const url = 'https://ourworldindata.org/grapher/internally-displaced-persons-from-disasters.csv';
+                const csv = await fetch(url).then(r => r.text());
+                const rows = csv.trim().split(/\r?\n/).map(r => r.split(','));
+                const head = rows.shift();
+                const entityIdx = head.indexOf('Entity'), yearIdx = head.indexOf('Year'), valIdx = head.length - 1;
+                const data = rows.filter(r => r[entityIdx] === 'World').map(r => ({ x: +r[yearIdx], y: +r[valIdx] })).filter(d => isFinite(d.y));
+                renderLine(targetId, data, { fmtY: v => compact(v), yMin: 0 });
+            } catch (e) {
+                document.getElementById(targetId).innerHTML = '<div class="tiny muted">Displacement data blocked (CORS/offline). <a class="inline" target="_blank" href="https://ourworldindata.org/natural-disasters">Open source</a>.</div>';
+            }
+        }
+
+        // Tab logic
+        const tabButtons = [
+            document.getElementById('tab-co2'),
+            document.getElementById('tab-damage'),
+            document.getElementById('tab-idp')
+        ];
+        const panels = {
+            'tab-co2': document.getElementById('panel-co2'),
+            'tab-damage': document.getElementById('panel-damage'),
+            'tab-idp': document.getElementById('panel-idp')
+        };
+        const loaders = {
+            'tab-co2': () => loadCO2('co2Chart'),
+            'tab-damage': () => loadDisasterDamage('damageChart'),
+            'tab-idp': () => loadIDP('idpChart')
+        };
+        const loadedOnce = new Set();
+
+        function activateTab(id) {
+            tabButtons.forEach(btn => btn.setAttribute('aria-selected', String(btn.id === id)));
+            Object.entries(panels).forEach(([k, el]) => el.hidden = (k !== id));
+            if (!loadedOnce.has(id)) { loaders[id](); loadedOnce.add(id); }
+            panels[id].focus();
+            const chartNow = panels[id].querySelector('.chart');
+            const pathNow = chartNow?.querySelector('path');
+            if (pathNow) { resetPath(pathNow); requestAnimationFrame(() => animatePath(pathNow)); }
+        }
+
+        tabButtons.forEach(btn => {
+            btn.addEventListener('click', () => activateTab(btn.id));
+            btn.addEventListener('keydown', (e) => {
+                const idx = tabButtons.indexOf(btn);
+                if (e.key === 'ArrowRight') { e.preventDefault(); activateTab(tabButtons[(idx + 1) % tabButtons.length].id); }
+                if (e.key === 'ArrowLeft') { e.preventDefault(); activateTab(tabButtons[(idx - 1 + tabButtons.length) % tabButtons.length].id); }
+            });
+        });
+
+        // Initial loads
+        Promise.allSettled([
+            loadGISTEMP().catch(() => { document.getElementById('tempChart').innerHTML = '<div class="tiny muted">Temperature data blocked (CORS/offline). <a class="inline" target="_blank" href="https://data.giss.nasa.gov/gistemp/">Open source</a>.</div>'; }),
+            loadSeaLevel().catch(() => { document.getElementById('slrChart').innerHTML = '<div class="tiny muted">Sea-level data blocked (CORS/offline). <a class="inline" target="_blank" href="https://sealevel.nasa.gov/understanding-sea-level/key-indicators/global-mean-sea-level">Open source</a>.</div>'; })
+        ]);
+        // Load first tab by default
+        activateTab('tab-co2');
+    </script>
+</body>
+
+</html>

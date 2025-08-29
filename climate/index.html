@@ -626,21 +626,13 @@
             }
         }
 
-        /* --- Mortality marker + dotted future --- */
         .finis {
             display: none !important;
         }
 
-        /* hide the old skull footer */
-
-        /* a slim sticky marker that sits mid-screen and cuts through the timeline */
         .death-marker {
-            position: sticky;
-            top: 45vh;
-            /* center-ish; tweak if you like */
-            height: 0;
-            z-index: 5;
-            pointer-events: none;
+            position: relative;
+            margin: 2rem 0;
         }
 
         .death-marker::before {
@@ -648,25 +640,25 @@
             position: absolute;
             left: 0;
             right: 0;
-            top: 0;
+            top: 50%;
             border-top: 2px solid color-mix(in srgb, var(--accent) 60%, var(--line));
         }
 
         .death-marker .label {
-            position: absolute;
-            top: -0.95rem;
+            position: relative;
+            display: inline-block;
             left: 50%;
-            transform: translateX(-50%);
+            transform: translate(-50%, -50%);
             background: #fff;
             border: 1px solid var(--line);
             border-radius: 999px;
-            padding: .2rem .55rem;
+            padding: .25rem .65rem;
             font-weight: 800;
             color: var(--muted);
             white-space: nowrap;
         }
 
-        /* cover the solid rail on rows *after* death, redraw as dotted */
+        /* after-life rows: paint over the solid rail, redraw as dotted */
         .t-row.post-life::before {
             content: "";
             position: absolute;
@@ -675,7 +667,7 @@
             bottom: 0;
             width: 1px;
             background: var(--bg);
-            /* paint over the solid line */
+            /* cover the solid line */
             z-index: 1;
         }
 
@@ -696,7 +688,18 @@
                 left: 1rem;
             }
 
-            /* match your mobile rail */
+            /* align to mobile rail */
+        }
+
+        /* small appended note that we add on post-life rows */
+        .life-note {
+            margin-top: .35rem;
+            font-size: .9rem;
+            color: var(--muted);
+        }
+
+        .life-note strong {
+            font-weight: 800;
         }
     </style>
 </head>
@@ -1524,7 +1527,7 @@
             return deathMarkerEl;
         }
 
-        /* pick a representative year for each row (we use the max of its data-year spans) */
+        /* pick a representative year for each row (max data-year in its .t-year) */
         function rowYear(row) {
             let y = -Infinity;
             row.querySelectorAll('.age-year').forEach(s => {
@@ -1534,13 +1537,31 @@
             return Number.isFinite(y) ? y : CURRENT_YEAR;
         }
 
-        /* insert marker at the right spot, flip rail to dotted after, and rewrite the blurbs */
+        /* create/update/remove a small appended note on a row's .t-year */
+        function upsertLifeNote(row, html) {
+            const host = row.querySelector('.t-year');
+            if (!host) return;
+            let note = host.querySelector('.life-note');
+            if (!html) {
+                if (note) note.remove();
+                return;
+            }
+            if (!note) {
+                note = document.createElement('p');
+                note.className = 'life-note';
+                host.appendChild(note);
+            }
+            note.innerHTML = html;
+        }
+
+        /* place marker, toggle dotted rail, and append kids/grandkids text AFTER death */
         function updateMortality(currentAge) {
             const deathYear = CURRENT_YEAR + (DEATH_AGE - currentAge);
             const rows = Array.from(timelineEl.querySelectorAll(':scope > .t-row'));
-            const marker = ensureDeathMarker();
 
-            // find the first row whose representative year is *after* deathYear
+            // (A) insert the marker *between* rows (non-sticky)
+            const marker = ensureDeathMarker();
+            marker.remove(); // in case we're re-running
             let insertBefore = null;
             for (const r of rows) {
                 if (rowYear(r) > deathYear) { insertBefore = r; break; }
@@ -1548,40 +1569,35 @@
             if (insertBefore) timelineEl.insertBefore(marker, insertBefore);
             else timelineEl.appendChild(marker);
 
-            // toggle dotted rail + rewrite the muted paragraph text after death
+            // (B) flip the rail & append note text after death; do not touch original paragraphs
             rows.forEach(r => {
                 const y = rowYear(r);
                 const post = y > deathYear;
                 r.classList.toggle('post-life', post);
 
-                const p = r.querySelector('.t-year .muted');
-                if (!p) return;
-
-                // stash original once so we can restore when dial changes
-                if (!p.dataset.orig) p.dataset.orig = p.innerHTML;
-
                 if (!post) {
-                    p.innerHTML = p.dataset.orig;
+                    upsertLifeNote(r, "");    // remove any prior note
                     return;
                 }
 
-                // age math
+                // ages relative to that row's year
                 const youAtY = Math.max(0, currentAge + (y - CURRENT_YEAR));
                 const kidAtY = Math.max(0, youAtY - GENERATION);
                 const gkidAtY = Math.max(0, kidAtY - GENERATION);
-
                 const delta = y - deathYear;
+
                 let msg;
                 if (delta <= GENERATION) {
-                    msg = `You are already gone. But your kids would be ${nf0.format(kidAtY)}.`;
+                    msg = `You are already gone. But your kids would be roughly <strong>${nf0.format(kidAtY)}</strong> in <strong>${y}</strong>.`;
                 } else if (delta <= 2 * GENERATION) {
-                    msg = `You and your kids are already gone. But your grandkids would be ${nf0.format(gkidAtY)}.`;
+                    msg = `You and your kids are already gone. But your grandkids would be roughly <strong>${nf0.format(gkidAtY)}</strong> in <strong>${y}</strong>.`;
                 } else {
-                    msg = `You, your kids, and your grandkids are already gone.`;
+                    msg = `You, your kids, and your grandkids are already gone by <strong>${y}</strong>.`;
                 }
-                p.textContent = msg; // simple text (no age-year spans here)
+                upsertLifeNote(r, msg);
             });
         }
+
 
     </script>
 </body>

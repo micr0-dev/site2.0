@@ -1156,28 +1156,28 @@
 
         async function loadSeaLevel() {
             await withChartLoading('slrChart', async () => {
-                const data = await fetch('data/sealevel.json').then(r => r.json());
+                const data = await fetch('public/data/sealevel.json').then(r => r.json());
                 renderLine('slrChart', data, { fmtY: v => nf0.format(v) });
             });
         }
 
         async function loadCO2(targetId = 'co2Chart') {
             await withChartLoading(targetId, async () => {
-                const data = await fetch('data/co2.json').then(r => r.json());
+                const data = await fetch('public/data/co2.json').then(r => r.json());
                 renderLine(targetId, data, { fmtY: v => nf1.format(v) });
             });
         }
 
         async function loadDisasterDamage(targetId = 'damageChart') {
             await withChartLoading(targetId, async () => {
-                const data = await fetch('data/damages.json').then(r => r.json());
+                const data = await fetch('public/data/damages.json').then(r => r.json());
                 renderLine(targetId, data, { fmtY: v => compactCurrency(v), yMin: 0 });
             });
         }
 
         async function loadIDP(targetId = 'idpChart') {
             await withChartLoading(targetId, async () => {
-                const data = await fetch('data/idp.json').then(r => r.json());
+                const data = await fetch('public/data/idp.json').then(r => r.json());
                 renderLine(targetId, data, { fmtY: v => compact(v), yMin: 0 });
             });
         }

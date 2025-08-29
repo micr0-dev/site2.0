@@ -1353,6 +1353,22 @@
         /* Data loaders with graceful fallback links in console */
         async function loadGISTEMP() {
             await withChartLoading('slrChart', async () => {
+                const data = await fetch('public/data/gistemp.json').then(r => r.json());
+                const scen = await fetch('public/data/gistemp_scenario.json').then(r => r.json());
+                const endY = endYearForChart('tempChart');          // -> 2039 for your 2030s section
+                renderLine('tempChart', data, {
+                    fmtY: v => v.toFixed(2) + ' °C',
+                    projectionTo: endY,
+                    scenario: scen,
+                    monotonic: false,
+                    jaggedFactor: 0.5
+                });
+            });
+
+        }
+
+        async function loadSeaLevel() {
+            await withChartLoading('slrChart', async () => {
                 const data = await fetch('public/data/sealevel.json').then(r => r.json());
                 const scen = await fetch('public/data/sealevel_scenario.json').then(r => r.json());
                 const endY = endYearForChart('slrChart');            // -> 2039 for your 2030s section
@@ -1363,15 +1379,6 @@
                     monotonic: true,         // sea level shouldn’t dip
                     jaggedFactor: 0.7
                 });
-            });
-
-        }
-
-        async function loadSeaLevel() {
-            await withChartLoading('slrChart', async () => {
-                const data = await fetch('public/data/sealevel.json').then(r => r.json());
-                const endY = endYearForChart('slrChart');            // 2039 in your layout
-                renderLine('slrChart', data, { fmtY: v => nf0.format(v), projectionTo: endY });
             });
         }
 

@@ -1215,22 +1215,22 @@
         const chartObserver = new IntersectionObserver(entries => {
             entries.forEach(e => {
                 const paths = e.target.querySelectorAll('path[data-animate]');
-                paths.forEach(path => {
-                    if (e.isIntersecting) {
-                        animatePath(path);
-                    } else {
-                        resetPath(path);
-                    }
-                });
+                if (!paths.length) return;
+                if (e.isIntersecting) {
+                    paths.forEach(p => animatePath(p));
+                } else {
+                    paths.forEach(p => resetPath(p));
+                }
             });
         }, { threshold: 0.35 });
+
 
         function renderLine(elId, series, {
             fmtY = (v) => v.toFixed(2),
             yMin = null,
             yMax = null,
-            projectionTo = null,       // NEW: numeric end year to project to
-            useLastNForTrend = 10      // NEW: how many recent points to fit
+            projectionTo = null,      // NEW
+            windowYears = 10          // NEW: fit window for trend
         } = {}) {
             const el = document.getElementById(elId); el.innerHTML = '';
             if (!series || series.length === 0) {
@@ -1238,12 +1238,11 @@
                 return;
             }
 
-            // Build projection if requested
             const proj = (projectionTo != null)
-                ? buildProjection(series, projectionTo, { useLastN: useLastNForTrend })
+                ? buildProjection(series, projectionTo, { windowYears })
                 : [];
 
-            // Combine for axis scaling (avoid duplicating the last historical point if projection includes it)
+            // combine for axes (avoid double-counting the last observed point)
             const combined = proj.length ? series.concat(proj.slice(1)) : series;
 
             const svg = mkSVG(); el.appendChild(svg);
@@ -1263,28 +1262,22 @@
             for (let i = 0; i < 6; i++) {
                 const gy = y(minY + i * (maxY - minY) / 5);
                 const ln = document.createElementNS(svg.namespaceURI, 'line');
-                ln.setAttribute('x1', PAD); ln.setAttribute('x2', W - (PAD));
+                ln.setAttribute('x1', PAD); ln.setAttribute('x2', W - PAD);
                 ln.setAttribute('y1', gy); ln.setAttribute('y2', gy);
                 g.appendChild(ln);
             }
             svg.appendChild(g);
 
-            // axes labels
+            // axes
             const axis = document.createElementNS(svg.namespaceURI, 'g');
-            const niceAxis = (min, max, steps) => {
-                const span = max - min; const step = span / steps; const ticks = [];
-                for (let i = 0; i <= steps; i++) ticks.push(min + i * step);
-                return ticks;
-            };
-            const xTicks = niceAxis(minX, maxX, 6).map(v => Math.round(v));
-            xTicks.forEach(v => {
+            const tickify = (min, max, steps) => { const s = max - min, st = s / steps, t = []; for (let i = 0; i <= steps; i++)t.push(min + i * st); return t; };
+            tickify(minX, maxX, 6).map(v => Math.round(v)).forEach(v => {
                 const tx = document.createElementNS(svg.namespaceURI, 'text');
                 tx.setAttribute('x', x(v)); tx.setAttribute('y', H - PAD + 24);
-                tx.setAttribute('text-anchor', 'middle'); tx.setAttribute('font-size', '18'); tx.textContent = Math.round(v);
+                tx.setAttribute('text-anchor', 'middle'); tx.setAttribute('font-size', '18'); tx.textContent = v;
                 axis.appendChild(tx);
             });
-            const yTicks = niceAxis(minY, maxY, 5);
-            yTicks.forEach(v => {
+            tickify(minY, maxY, 5).forEach(v => {
                 const ty = document.createElementNS(svg.namespaceURI, 'text');
                 ty.setAttribute('x', PAD - 10); ty.setAttribute('y', y(v) + 4);
                 ty.setAttribute('text-anchor', 'end'); ty.setAttribute('font-size', '18'); ty.textContent = fmtY(v);
@@ -1292,48 +1285,46 @@
             });
             svg.appendChild(axis);
 
-            // helper to turn points into a path string
             const toPath = pts => pts.map((p, i) => (i ? 'L' : 'M') + x(p.x) + ',' + y(p.y)).join(' ');
 
-            // HISTORICAL path (accent color)
-            const histPath = document.createElementNS(svg.namespaceURI, 'path');
-            histPath.setAttribute('d', toPath(series));
-            histPath.setAttribute('fill', 'none');
-            histPath.setAttribute('stroke', 'var(--accent)');
-            histPath.setAttribute('stroke-width', '3');
-            histPath.setAttribute('stroke-linecap', 'round');
-            histPath.setAttribute('data-animate', 'true');
-            svg.appendChild(histPath);
+            // historical (solid accent)
+            const hist = document.createElementNS(svg.namespaceURI, 'path');
+            hist.setAttribute('d', toPath(series));
+            hist.setAttribute('fill', 'none');
+            hist.setAttribute('stroke', 'var(--accent)');
+            hist.setAttribute('stroke-width', '3');
+            hist.setAttribute('stroke-linecap', 'round');
+            hist.setAttribute('data-animate', 'true');
+            svg.appendChild(hist);
 
-            // PROJECTION path (grey dotted), if any
+            // projection (grey dotted) — only if there’s future to draw
             if (proj.length >= 2) {
-                const projPath = document.createElementNS(svg.namespaceURI, 'path');
-                projPath.setAttribute('d', toPath(proj));
-                projPath.setAttribute('fill', 'none');
-                projPath.setAttribute('class', 'projection');
-                projPath.setAttribute('stroke', 'var(--proj)');
-                projPath.setAttribute('stroke-width', '3');
-                projPath.setAttribute('stroke-linecap', 'round');
-                projPath.setAttribute('stroke-dasharray', '6 6');
-                projPath.setAttribute('data-animate', 'true');
-                svg.appendChild(projPath);
+                const pth = document.createElementNS(svg.namespaceURI, 'path');
+                pth.setAttribute('d', toPath(proj));
+                pth.setAttribute('fill', 'none');
+                pth.setAttribute('class', 'projection');
+                pth.setAttribute('stroke', 'var(--proj)');
+                pth.setAttribute('stroke-width', '3');
+                pth.setAttribute('stroke-linecap', 'round');
+                pth.setAttribute('stroke-dasharray', '6 6');
+                pth.setAttribute('data-animate', 'true');
+                svg.appendChild(pth);
 
-                // add legend chip for Projection if the chart's nearby legend exists
+                // optional: add a legend swatch if not present
                 const legend = el.closest('.card, .panel')?.querySelector('.legend');
                 if (legend && !legend.querySelector('.key.proj')) {
                     const chip = document.createElement('span');
                     chip.className = 'swatch';
-                    chip.innerHTML = `<span class="key proj"></span> Projection to ${projectionTo}`;
+                    chip.innerHTML = '<span class="key proj"></span> Projection';
                     legend.appendChild(chip);
                 }
             }
 
-            // prepare & animate all paths in this chart
+            // prep + animate
             const paths = el.querySelectorAll('path[data-animate]');
             paths.forEach(p => resetPath(p));
             chartObserver.observe(el);
 
-            // if already in view, kick off animation now
             const r = el.getBoundingClientRect();
             const inView = r.top < window.innerHeight * 0.8 && r.bottom > window.innerHeight * 0.2;
             if (inView) paths.forEach(p => animatePath(p));
@@ -1753,6 +1744,61 @@
             return proj;
         }
 
+        function endYearForChart(elId) {
+            const el = document.getElementById(elId);
+            const row = el?.closest('.t-row');
+            return row ? rowYear(row) : null; // you already have rowYear(...)
+        }
+
+        /* Infer typical x-step (handles monthly vs yearly) using median Δx */
+        function inferStep(series) {
+            if (!series || series.length < 2) return 1;
+            const diffs = [];
+            for (let i = 1; i < series.length; i++) {
+                const dx = series[i].x - series[i - 1].x;
+                if (Number.isFinite(dx) && dx > 0) diffs.push(dx);
+            }
+            if (!diffs.length) return 1;
+            diffs.sort((a, b) => a - b);
+            return diffs[Math.floor(diffs.length / 2)];
+        }
+
+        /* Least-squares fit over the last `windowYears` of data */
+        function linearRegressionByWindow(series, windowYears = 10) {
+            if (!series?.length) return { m: 0, b: 0 };
+            const lastX = series[series.length - 1].x;
+            const data = series.filter(d => d.x >= lastX - windowYears);
+            const n = data.length;
+            if (n < 2) {
+                const last = data[n - 1] || series[series.length - 1];
+                return { m: 0, b: last?.y ?? 0 };
+            }
+            let sumX = 0, sumY = 0, sumXY = 0, sumXX = 0;
+            for (const d of data) { sumX += d.x; sumY += d.y; sumXY += d.x * d.y; sumXX += d.x * d.x; }
+            const denom = n * sumXX - sumX * sumX;
+            const m = denom !== 0 ? (n * sumXY - sumX * sumY) / denom : 0;
+            const b = (sumY - m * sumX) / n;
+            return { m, b };
+        }
+
+        /* Build projection at the same cadence so it connects cleanly */
+        function buildProjection(series, targetYear, { windowYears = 10 } = {}) {
+            if (!series?.length || targetYear == null) return [];
+            const last = series[series.length - 1];
+            if (targetYear <= last.x) return [];
+            const step = inferStep(series);        // e.g., ~0.0833 for monthly, 1 for yearly
+            const { m, b } = linearRegressionByWindow(series, windowYears);
+
+            const proj = [];
+            // include the last real point so the dotted line starts exactly there
+            proj.push({ x: last.x, y: last.y });
+
+            // step forward at the same cadence
+            for (let x = last.x + step; x <= targetYear + 1e-9; x += step) {
+                proj.push({ x, y: m * x + b });
+            }
+            return proj;
+        }
     </script>
 </body>
 

@@ -1400,17 +1400,19 @@
                 svg.appendChild(projPath);
 
                 // bottom "PROJECTION" label (below the plot so the line won't cross it)
-                const labelX = Math.min(cutoffX + 6, W - PAD - 4);
-                const labelY = H - PAD + 12;  // below plot, above tick labels (which are at +24)
+                const labelX = Math.min(cutoffX + 10, W - PAD - 4); // to the right of the divider
+                const labelY = H - PAD - 6;                          // a few px above the x-axis
                 const lbl = document.createElementNS(svg.namespaceURI, 'text');
                 lbl.textContent = 'PROJECTION';
                 lbl.setAttribute('class', 'proj-label');
                 lbl.setAttribute('text-anchor', 'start');
-                lbl.setAttribute('dominant-baseline', 'hanging');
+                lbl.setAttribute('dominant-baseline', 'middle');
                 lbl.setAttribute('x', labelX);
                 lbl.setAttribute('y', labelY);
-                lbl.setAttribute('aria-hidden', 'true');
+                // rotate around its own anchor point so it stays near the axis line
+                lbl.setAttribute('transform', `rotate(-90 ${labelX} ${labelY})`);
                 svg.appendChild(lbl);
+
 
                 // optional: legend chip (unchanged)
                 const legend = el.closest('.card, .panel')?.querySelector('.legend');
@@ -1435,12 +1437,13 @@
         async function loadGISTEMP() {
             await withChartLoading('tempChart', async () => {
                 const data = await fetch('public/data/gistemp.json').then(r => r.json());
-                // No scenario here — just the historical line
+                // No scenario, no projection
                 renderLine('tempChart', data, {
                     fmtY: v => v.toFixed(2) + ' °C'
                 });
             });
         }
+
 
 
 

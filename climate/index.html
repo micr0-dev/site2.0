@@ -1368,6 +1368,7 @@
 
         async function loadIDP(targetId = 'idpChart') {
             await withChartLoading(targetId, async () => {
+                const data = await fetch('public/data/idp.json').then(r => r.json());
                 const endY = endYearForChart(targetId);
                 renderLine(targetId, data, { fmtY: v => compact(v), yMin: 0, projectionTo: endY });
             });

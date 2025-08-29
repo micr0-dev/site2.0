@@ -695,6 +695,22 @@
             top: calc(var(--death-offset, 0px) * -1);
             /* pull overlay up into the gap */
         }
+
+        :root {
+            --proj: #9ca3af;
+            /* grey for projections */
+        }
+
+        /* legend square for projection */
+        .key.proj {
+            background: var(--proj);
+        }
+
+        /* dotted projection path */
+        .chart .projection {
+            stroke: var(--proj);
+            stroke-dasharray: 6 6;
+        }
     </style>
 </head>
 
@@ -747,7 +763,7 @@
                                 <span class="swatch"><span class="key"></span> GISTEMP global annual</span>
                             </div>
                             <p class="note">Paris targets (1.5 °C/2.0 °C) are defined vs 1850–1900; GISTEMP’s baseline
-                                is 1951–1980 (≈0.2–0.3 °C lower). See notes in Sources.</p>
+                                is 1951–1980 (≈0.2–0.3 °C lower).</p>
                         </div>
                     </div>
                 </div>
@@ -1196,29 +1212,44 @@
             });
         }
 
-        /* Observe .chart containers and re-animate whenever they enter view */
         const chartObserver = new IntersectionObserver(entries => {
             entries.forEach(e => {
-                const path = e.target.querySelector('path');
-                if (!path) return;
-                if (e.isIntersecting) {
-                    animatePath(path);
-                } else {
-                    // prepare for next time it comes back
-                    resetPath(path);
-                }
+                const paths = e.target.querySelectorAll('path[data-animate]');
+                paths.forEach(path => {
+                    if (e.isIntersecting) {
+                        animatePath(path);
+                    } else {
+                        resetPath(path);
+                    }
+                });
             });
         }, { threshold: 0.35 });
-        function renderLine(elId, series, { fmtY = (v) => v.toFixed(2), yMin = null, yMax = null } = {}) {
+
+        function renderLine(elId, series, {
+            fmtY = (v) => v.toFixed(2),
+            yMin = null,
+            yMax = null,
+            projectionTo = null,       // NEW: numeric end year to project to
+            useLastNForTrend = 10      // NEW: how many recent points to fit
+        } = {}) {
             const el = document.getElementById(elId); el.innerHTML = '';
             if (!series || series.length === 0) {
                 el.innerHTML = '<div class="tiny muted">Data unavailable (CORS or offline). See Sources below.</div>';
                 return;
             }
 
+            // Build projection if requested
+            const proj = (projectionTo != null)
+                ? buildProjection(series, projectionTo, { useLastN: useLastNForTrend })
+                : [];
+
+            // Combine for axis scaling (avoid duplicating the last historical point if projection includes it)
+            const combined = proj.length ? series.concat(proj.slice(1)) : series;
+
             const svg = mkSVG(); el.appendChild(svg);
             const W = 800, H = 450, PAD = 60; svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
-            const xs = series.map(d => d.x), ys = series.map(d => d.y);
+
+            const xs = combined.map(d => d.x), ys = combined.map(d => d.y);
             const minX = Math.min(...xs), maxX = Math.max(...xs);
             const minY = yMin !== null ? yMin : Math.min(...ys);
             const maxY = yMax !== null ? yMax : Math.max(...ys);
@@ -1240,6 +1271,11 @@
 
             // axes labels
             const axis = document.createElementNS(svg.namespaceURI, 'g');
+            const niceAxis = (min, max, steps) => {
+                const span = max - min; const step = span / steps; const ticks = [];
+                for (let i = 0; i <= steps; i++) ticks.push(min + i * step);
+                return ticks;
+            };
             const xTicks = niceAxis(minX, maxX, 6).map(v => Math.round(v));
             xTicks.forEach(v => {
                 const tx = document.createElementNS(svg.namespaceURI, 'text');
@@ -1256,22 +1292,51 @@
             });
             svg.appendChild(axis);
 
-            // path
-            const pts = series.map(d => [x(d.x), y(d.y)]);
-            const path = document.createElementNS(svg.namespaceURI, 'path');
-            path.setAttribute('d', pts.map((p, i) => (i ? 'L' : 'M') + p[0] + ',' + p[1]).join(' '));
-            path.setAttribute('fill', 'none');
-            path.setAttribute('stroke', "var(--accent)");
-            path.setAttribute('stroke-width', '3'); path.setAttribute('stroke-linecap', 'round');
-            svg.appendChild(path);
+            // helper to turn points into a path string
+            const toPath = pts => pts.map((p, i) => (i ? 'L' : 'M') + x(p.x) + ',' + y(p.y)).join(' ');
 
-            // prepare & animate
-            resetPath(path);
-            chartObserver.observe(el);               // re-animate whenever it re-enters view
-            // also animate now if it's already on screen
+            // HISTORICAL path (accent color)
+            const histPath = document.createElementNS(svg.namespaceURI, 'path');
+            histPath.setAttribute('d', toPath(series));
+            histPath.setAttribute('fill', 'none');
+            histPath.setAttribute('stroke', 'var(--accent)');
+            histPath.setAttribute('stroke-width', '3');
+            histPath.setAttribute('stroke-linecap', 'round');
+            histPath.setAttribute('data-animate', 'true');
+            svg.appendChild(histPath);
+
+            // PROJECTION path (grey dotted), if any
+            if (proj.length >= 2) {
+                const projPath = document.createElementNS(svg.namespaceURI, 'path');
+                projPath.setAttribute('d', toPath(proj));
+                projPath.setAttribute('fill', 'none');
+                projPath.setAttribute('class', 'projection');
+                projPath.setAttribute('stroke', 'var(--proj)');
+                projPath.setAttribute('stroke-width', '3');
+                projPath.setAttribute('stroke-linecap', 'round');
+                projPath.setAttribute('stroke-dasharray', '6 6');
+                projPath.setAttribute('data-animate', 'true');
+                svg.appendChild(projPath);
+
+                // add legend chip for Projection if the chart's nearby legend exists
+                const legend = el.closest('.card, .panel')?.querySelector('.legend');
+                if (legend && !legend.querySelector('.key.proj')) {
+                    const chip = document.createElement('span');
+                    chip.className = 'swatch';
+                    chip.innerHTML = `<span class="key proj"></span> Projection to ${projectionTo}`;
+                    legend.appendChild(chip);
+                }
+            }
+
+            // prepare & animate all paths in this chart
+            const paths = el.querySelectorAll('path[data-animate]');
+            paths.forEach(p => resetPath(p));
+            chartObserver.observe(el);
+
+            // if already in view, kick off animation now
             const r = el.getBoundingClientRect();
             const inView = r.top < window.innerHeight * 0.8 && r.bottom > window.innerHeight * 0.2;
-            if (inView) animatePath(path);
+            if (inView) paths.forEach(p => animatePath(p));
         }
 
 
@@ -1279,14 +1344,16 @@
         async function loadGISTEMP() {
             await withChartLoading('tempChart', async () => {
                 const data = await fetch('public/data/gistemp.json').then(r => r.json());
-                renderLine('tempChart', data, { fmtY: v => v.toFixed(2) });
+                const endY = endYearForChart('tempChart');           // 2029 in your layout
+                renderLine('tempChart', data, { fmtY: v => v.toFixed(2), projectionTo: endY });
             });
         }
 
         async function loadSeaLevel() {
             await withChartLoading('slrChart', async () => {
                 const data = await fetch('public/data/sealevel.json').then(r => r.json());
-                renderLine('slrChart', data, { fmtY: v => nf0.format(v) });
+                const endY = endYearForChart('slrChart');            // 2039 in your layout
+                renderLine('slrChart', data, { fmtY: v => nf0.format(v), projectionTo: endY });
             });
         }
 
@@ -1295,21 +1362,23 @@
         async function loadCO2(targetId = 'co2Chart') {
             await withChartLoading(targetId, async () => {
                 const data = await fetch('public/data/co2.json').then(r => r.json());
-                renderLine(targetId, data, { fmtY: formatCO2Gt, yMin: 0 });
+                const endY = endYearForChart(targetId);              // 2049 in your layout
+                renderLine(targetId, data, { fmtY: formatCO2Gt, yMin: 0, projectionTo: endY });
             });
         }
 
         async function loadDisasterDamage(targetId = 'damageChart') {
             await withChartLoading(targetId, async () => {
                 const data = await fetch('public/data/damages.json').then(r => r.json());
-                renderLine(targetId, data, { fmtY: v => compactCurrency(v), yMin: 0 });
+                const endY = endYearForChart(targetId);
+                renderLine(targetId, data, { fmtY: v => compactCurrency(v), yMin: 0, projectionTo: endY });
             });
         }
 
         async function loadIDP(targetId = 'idpChart') {
             await withChartLoading(targetId, async () => {
-                const data = await fetch('public/data/idp.json').then(r => r.json());
-                renderLine(targetId, data, { fmtY: v => compact(v), yMin: 0 });
+                const endY = endYearForChart(targetId);
+                renderLine(targetId, data, { fmtY: v => compact(v), yMin: 0, projectionTo: endY });
             });
         }
 
@@ -1639,7 +1708,50 @@
             });
         }
 
+        function endYearForChart(elId) {
+            const el = document.getElementById(elId);
+            if (!el) return null;
+            const row = el.closest('.t-row');
+            if (!row) return null;
+            return rowYear(row); // you already wrote this helper
+        }
 
+        /* least-squares linear regression on the last N points */
+        function linearRegression(points, useLastN = 10) {
+            const data = points.slice(Math.max(0, points.length - useLastN));
+            const n = data.length;
+            if (n < 2) {
+                const last = data[n - 1] || { x: 0, y: 0 };
+                return { m: 0, b: last.y };
+            }
+            let sumX = 0, sumY = 0, sumXY = 0, sumXX = 0;
+            for (const d of data) {
+                sumX += d.x; sumY += d.y;
+                sumXY += d.x * d.y; sumXX += d.x * d.x;
+            }
+            const denom = n * sumXX - sumX * sumX;
+            const m = denom !== 0 ? (n * sumXY - sumX * sumY) / denom : 0;
+            const b = (sumY - m * sumX) / n;
+            return { m, b };
+        }
+
+        /* Build projected series up to targetYear, starting from last observed point */
+        function buildProjection(series, targetYear, { useLastN = 10 } = {}) {
+            if (!series?.length || targetYear == null) return [];
+            const last = series[series.length - 1];
+            if (targetYear <= last.x) return []; // nothing to project into the future
+
+            const { m, b } = linearRegression(series, useLastN);
+            const proj = [];
+            // include the last real point so the dotted line connects cleanly
+            proj.push({ x: last.x, y: last.y });
+
+            // assume annual spacing; adjust here if your data are monthly
+            for (let x = Math.floor(last.x) + 1; x <= targetYear; x++) {
+                proj.push({ x, y: m * x + b });
+            }
+            return proj;
+        }
 
     </script>
 </body>

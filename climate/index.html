@@ -1267,6 +1267,38 @@
             finally { setChartLoading(elId, false); }
         }
 
+        (function fixScrollStart() {
+            function navType() {
+                // Modern
+                const nav = performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
+                if (nav && nav.type) return nav.type; // 'navigate' | 'reload' | 'back_forward' | 'prerender'
+                // Legacy fallback
+                const t = performance.navigation && performance.navigation.type;
+                return ({ 0: 'navigate', 1: 'reload', 2: 'back_forward', 255: 'navigate' })[t] || 'navigate';
+            }
+
+            function handle() {
+                // Respect in-page anchors like /#timeline
+                if (location.hash) return;
+
+                const type = navType();
+                if (type === 'back_forward') {
+                    // Only case we restore the saved position
+                    const y = parseFloat(sessionStorage.getItem('scrollY') || 'NaN');
+                    if (!Number.isNaN(y)) window.scrollTo(0, y);
+                } else {
+                    // Fresh load or reload: go to top and clear any old value
+                    sessionStorage.removeItem('scrollY');
+                    window.scrollTo(0, 0);
+                }
+            }
+
+            // Run after other load handlers so we can override earlier restores
+            window.addEventListener('pageshow', handle);
+            // Extra safety for browsers without 'pageshow'
+            window.addEventListener('load', () => setTimeout(handle, 0));
+        })();
+
         (function mobileTimelineFix() {
             const BREAKPOINT = 880; // matches your CSS intent
 

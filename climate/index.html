@@ -1200,37 +1200,57 @@
 
         function animatePath(path, ms = 1600) {
             const len = path.getTotalLength();
-            // reset first
             path.style.transition = 'none';
             path.style.strokeDasharray = String(len);
             path.style.strokeDashoffset = String(len);
-            // trigger
-            path.getBoundingClientRect(); // reflow
-            requestAnimationFrame(() => {
-                path.style.transition = `stroke-dashoffset ${ms}ms ease`;
-                path.style.strokeDashoffset = '0';
+            // reflow
+            path.getBoundingClientRect();
+            return new Promise(resolve => {
+                const done = () => resolve();
+                path.addEventListener('transitionend', done, { once: true });
+                // safety timer in case 'transitionend' doesn't fire
+                const t = setTimeout(done, ms + 60);
+                path.addEventListener('transitionend', () => clearTimeout(t), { once: true });
+                requestAnimationFrame(() => {
+                    path.style.transition = `stroke-dashoffset ${ms}ms ease`;
+                    path.style.strokeDashoffset = '0';
+                });
             });
         }
 
+        async function animateChartSequential(el) {
+            const hist = el.querySelector('path[data-line="hist"]');
+            const proj = el.querySelectorAll('path[data-line="proj"]');
+
+            if (!hist) return;
+            resetPath(hist);
+            proj.forEach(p => resetPath(p));
+
+            await animatePath(hist, 1600);     // when this finishes...
+            await Promise.all([...proj].map(p => animatePath(p, 1200)));
+        }
+
+        /* Observe .chart containers and orchestrate sequential animation */
         const chartObserver = new IntersectionObserver(entries => {
             entries.forEach(e => {
-                const paths = e.target.querySelectorAll('path[data-animate]');
+                const paths = e.target.querySelectorAll('path[data-line]');
                 if (!paths.length) return;
                 if (e.isIntersecting) {
-                    paths.forEach(p => animatePath(p));
+                    animateChartSequential(e.target);
                 } else {
                     paths.forEach(p => resetPath(p));
                 }
             });
         }, { threshold: 0.35 });
 
-
         function renderLine(elId, series, {
             fmtY = (v) => v.toFixed(2),
             yMin = null,
             yMax = null,
-            projectionTo = null,      // NEW
-            windowYears = 10          // NEW: fit window for trend
+            projectionTo = null,      // numeric end year for this section
+            scenario = null,          // <-- pass scenario series here (array of {x,y})
+            monotonic = false,        // e.g., sea level true; temperatures false
+            jaggedFactor = 0.6        // how “jagged” the dotted line looks
         } = {}) {
             const el = document.getElementById(elId); el.innerHTML = '';
             if (!series || series.length === 0) {
@@ -1238,11 +1258,12 @@
                 return;
             }
 
-            const proj = (projectionTo != null)
-                ? buildProjection(series, projectionTo, { windowYears })
+            const endY = projectionTo ?? endYearForChart(elId);
+            const proj = (scenario && endY != null)
+                ? buildScenarioProjection({ elId, hist: series, scenario, endYear: endY, monotonic, jaggedFactor })
                 : [];
 
-            // combine for axes (avoid double-counting the last observed point)
+            // axes over both (avoid dup-ing last observed point)
             const combined = proj.length ? series.concat(proj.slice(1)) : series;
 
             const svg = mkSVG(); el.appendChild(svg);
@@ -1270,14 +1291,14 @@
 
             // axes
             const axis = document.createElementNS(svg.namespaceURI, 'g');
-            const tickify = (min, max, steps) => { const s = max - min, st = s / steps, t = []; for (let i = 0; i <= steps; i++)t.push(min + i * st); return t; };
-            tickify(minX, maxX, 6).map(v => Math.round(v)).forEach(v => {
+            const ticks = (min, max, steps) => { const s = max - min, st = s / steps, t = []; for (let i = 0; i <= steps; i++)t.push(min + i * st); return t; };
+            ticks(minX, maxX, 6).map(v => Math.round(v)).forEach(v => {
                 const tx = document.createElementNS(svg.namespaceURI, 'text');
                 tx.setAttribute('x', x(v)); tx.setAttribute('y', H - PAD + 24);
                 tx.setAttribute('text-anchor', 'middle'); tx.setAttribute('font-size', '18'); tx.textContent = v;
                 axis.appendChild(tx);
             });
-            tickify(minY, maxY, 5).forEach(v => {
+            ticks(minY, maxY, 5).forEach(v => {
                 const ty = document.createElementNS(svg.namespaceURI, 'text');
                 ty.setAttribute('x', PAD - 10); ty.setAttribute('y', y(v) + 4);
                 ty.setAttribute('text-anchor', 'end'); ty.setAttribute('font-size', '18'); ty.textContent = fmtY(v);
@@ -1287,17 +1308,17 @@
 
             const toPath = pts => pts.map((p, i) => (i ? 'L' : 'M') + x(p.x) + ',' + y(p.y)).join(' ');
 
-            // historical (solid accent)
+            // historical (solid)
             const hist = document.createElementNS(svg.namespaceURI, 'path');
             hist.setAttribute('d', toPath(series));
             hist.setAttribute('fill', 'none');
             hist.setAttribute('stroke', 'var(--accent)');
             hist.setAttribute('stroke-width', '3');
             hist.setAttribute('stroke-linecap', 'round');
-            hist.setAttribute('data-animate', 'true');
+            hist.setAttribute('data-line', 'hist');
             svg.appendChild(hist);
 
-            // projection (grey dotted) — only if there’s future to draw
+            // projection (grey dotted)
             if (proj.length >= 2) {
                 const pth = document.createElementNS(svg.namespaceURI, 'path');
                 pth.setAttribute('d', toPath(proj));
@@ -1307,37 +1328,43 @@
                 pth.setAttribute('stroke-width', '3');
                 pth.setAttribute('stroke-linecap', 'round');
                 pth.setAttribute('stroke-dasharray', '6 6');
-                pth.setAttribute('data-animate', 'true');
+                pth.setAttribute('data-line', 'proj');
                 svg.appendChild(pth);
 
-                // optional: add a legend swatch if not present
+                // add legend chip if missing
                 const legend = el.closest('.card, .panel')?.querySelector('.legend');
                 if (legend && !legend.querySelector('.key.proj')) {
                     const chip = document.createElement('span');
                     chip.className = 'swatch';
-                    chip.innerHTML = '<span class="key proj"></span> Projection';
+                    chip.innerHTML = '<span class="key proj"></span> Projection (likely)';
                     legend.appendChild(chip);
                 }
             }
 
-            // prep + animate
-            const paths = el.querySelectorAll('path[data-animate]');
-            paths.forEach(p => resetPath(p));
-            chartObserver.observe(el);
-
+            // prep & animate sequentially when in view
             const r = el.getBoundingClientRect();
-            const inView = r.top < window.innerHeight * 0.8 && r.bottom > window.innerHeight * 0.2;
-            if (inView) paths.forEach(p => animatePath(p));
+            chartObserver.observe(el);
+            if (r.top < window.innerHeight * 0.8 && r.bottom > window.innerHeight * 0.2) {
+                animateChartSequential(el);
+            }
         }
 
 
         /* Data loaders with graceful fallback links in console */
         async function loadGISTEMP() {
-            await withChartLoading('tempChart', async () => {
-                const data = await fetch('public/data/gistemp.json').then(r => r.json());
-                const endY = endYearForChart('tempChart');           // 2029 in your layout
-                renderLine('tempChart', data, { fmtY: v => v.toFixed(2), projectionTo: endY });
+            await withChartLoading('slrChart', async () => {
+                const data = await fetch('public/data/sealevel.json').then(r => r.json());
+                const scen = await fetch('public/data/sealevel_scenario.json').then(r => r.json());
+                const endY = endYearForChart('slrChart');            // -> 2039 for your 2030s section
+                renderLine('slrChart', data, {
+                    fmtY: v => nf0.format(v),
+                    projectionTo: endY,
+                    scenario: scen,
+                    monotonic: true,         // sea level shouldn’t dip
+                    jaggedFactor: 0.7
+                });
             });
+
         }
 
         async function loadSeaLevel() {
@@ -1353,8 +1380,15 @@
         async function loadCO2(targetId = 'co2Chart') {
             await withChartLoading(targetId, async () => {
                 const data = await fetch('public/data/co2.json').then(r => r.json());
-                const endY = endYearForChart(targetId);              // 2049 in your layout
-                renderLine(targetId, data, { fmtY: formatCO2Gt, yMin: 0, projectionTo: endY });
+                const endY = endYearForChart(targetId);                 // -> 2049 in the 2040s block
+                const scen = await fetch('public/data/co2_scenario.json').then(r => r.json());
+                renderLine(targetId, data, {
+                    fmtY: formatCO2Gt, yMin: 0,
+                    projectionTo: endY,
+                    scenario: scen,
+                    monotonic: false,
+                    jaggedFactor: 0.5
+                });
             });
         }
 
@@ -1362,7 +1396,14 @@
             await withChartLoading(targetId, async () => {
                 const data = await fetch('public/data/damages.json').then(r => r.json());
                 const endY = endYearForChart(targetId);
-                renderLine(targetId, data, { fmtY: v => compactCurrency(v), yMin: 0, projectionTo: endY });
+                const scen = await fetch('public/data/damages_scenario.json').then(r => r.json());
+                renderLine(targetId, data, {
+                    fmtY: v => compactCurrency(v), yMin: 0,
+                    projectionTo: endY,
+                    scenario: scen,
+                    jaggedFactor: 0.7
+                });
+
             });
         }
 
@@ -1370,7 +1411,13 @@
             await withChartLoading(targetId, async () => {
                 const data = await fetch('public/data/idp.json').then(r => r.json());
                 const endY = endYearForChart(targetId);
-                renderLine(targetId, data, { fmtY: v => compact(v), yMin: 0, projectionTo: endY });
+                const scen = await fetch('public/data/idp_scenario.json').then(r => r.json());
+                renderLine(targetId, data, {
+                    fmtY: v => compact(v), yMin: 0,
+                    projectionTo: endY,
+                    scenario: scen,
+                    jaggedFactor: 0.6
+                });
             });
         }
 
@@ -1797,6 +1844,86 @@
             // step forward at the same cadence
             for (let x = last.x + step; x <= targetYear + 1e-9; x += step) {
                 proj.push({ x, y: m * x + b });
+            }
+            return proj;
+        }
+
+        function endYearForChart(elId) {
+            const el = document.getElementById(elId);
+            const row = el?.closest('.t-row');
+            return row ? rowYear(row) : null;
+        }
+
+        /* Median Δx (months vs years) */
+        function inferStep(series) {
+            if (!series || series.length < 2) return 1;
+            const diffs = [];
+            for (let i = 1; i < series.length; i++) {
+                const dx = series[i].x - series[i - 1].x;
+                if (Number.isFinite(dx) && dx > 0) diffs.push(dx);
+            }
+            diffs.sort((a, b) => a - b);
+            return diffs.length ? diffs[Math.floor(diffs.length / 2)] : 1;
+        }
+
+        /* Median absolute per-step Δy (used to size the “jagged” wiggle) */
+        function medianAbsStep(series) {
+            if (!series || series.length < 2) return 0;
+            const diffs = [];
+            for (let i = 1; i < series.length; i++) {
+                diffs.push(Math.abs(series[i].y - series[i - 1].y));
+            }
+            diffs.sort((a, b) => a - b);
+            return diffs[Math.floor(diffs.length / 2)] || 0;
+        }
+
+        /* Tiny deterministic RNG so the jagged line is stable between renders */
+        function mulberry32(a) {
+            return function () {
+                let t = a += 0x6D2B79F5; t = Math.imul(t ^ t >>> 15, t | 1);
+                t ^= t + Math.imul(t ^ t >>> 7, t | 61); return ((t ^ t >>> 14) >>> 0) / 4294967296;
+            };
+        }
+        function seedFrom(elId) { // simple, stable seed
+            let s = 2166136261; for (const c of (elId || "")) { s ^= c.charCodeAt(0); s = Math.imul(s, 16777619); }
+            return s >>> 0;
+        }
+
+        /* Linear interpolation on an (x,y) series */
+        function interpY(series, x) {
+            if (!series?.length) return 0;
+            if (x <= series[0].x) return series[0].y;
+            if (x >= series[series.length - 1].x) return series[series.length - 1].y;
+            let lo = 0, hi = series.length - 1;
+            while (hi - lo > 1) {
+                const mid = (lo + hi) >> 1;
+                if (series[mid].x <= x) lo = mid; else hi = mid;
+            }
+            const a = series[lo], b = series[hi];
+            const t = (x - a.x) / (b.x - a.x);
+            return a.y + t * (b.y - a.y);
+        }
+
+        /* Resample a scenario onto the historical cadence, add a small jagged wiggle, clamp if needed */
+        function buildScenarioProjection({ elId, hist, scenario, endYear, monotonic = false, jaggedFactor = 0.6 }) {
+            if (!hist?.length || !scenario?.length || endYear == null) return [];
+            const last = hist[hist.length - 1];
+            if (endYear <= last.x) return [];
+            const step = inferStep(hist);                       // monthly or yearly to match your chart
+            const baseAmp = medianAbsStep(hist) || 0;          // how jagged the historical line is
+            const amp = baseAmp * jaggedFactor;                // tune here if you want more/less jagged
+            const rng = mulberry32(seedFrom(elId));
+
+            const proj = [{ x: last.x, y: last.y }];           // include last real point to connect cleanly
+            let prevY = last.y;
+
+            for (let x = last.x + step; x <= endYear + 1e-9; x += step) {
+                const y0 = interpY(scenario, x);                 // “likely scenario” baseline
+                // small stable wiggle around the scenario (±amp)
+                const jitter = (rng() * 2 - 1) * amp;
+                let y = y0 + jitter;
+                if (monotonic) y = Math.max(prevY, y);            // e.g., sea level shouldn't dip below last
+                proj.push({ x, y }); prevY = y;
             }
             return proj;
         }

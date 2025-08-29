@@ -1376,8 +1376,8 @@
                     fmtY: v => nf0.format(v),
                     projectionTo: endY,
                     scenario: scen,
-                    monotonic: true,         // sea level shouldn’t dip
-                    jaggedFactor: 100
+                    monotonic: false,
+                    jaggedFactor: 2.0
                 });
             });
         }

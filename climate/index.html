@@ -292,17 +292,54 @@
 
         /* Charts */
         .chart {
-            width: 100%;
-            aspect-ratio: 16/9;
-            background: var(--bg);
-            border: 1px dashed var(--line);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             position: relative;
-            overflow: hidden;
-            padding: .5rem
+        }
+
+        .chart.loading::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 28px;
+            height: 28px;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            border: 3px solid var(--line);
+            border-top-color: var(--accent);
+            animation: spin .8s linear infinite;
+            pointer-events: none;
+        }
+
+        .chart.loading::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(0deg,
+                    rgba(255, 255, 255, 0) 0%,
+                    rgba(255, 255, 255, .65) 50%,
+                    rgba(255, 255, 255, 0) 100%);
+            opacity: .6;
+            pointer-events: none;
+        }
+
+        @keyframes spin {
+            to {
+                transform: translate(-50%, -50%) rotate(360deg);
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .chart.loading::after {
+                animation: none;
+            }
+        }
+
+        @media print {
+
+            .chart.loading::before,
+            .chart.loading::after {
+                display: none !important;
+            }
         }
 
         .chart svg {
@@ -1111,28 +1148,38 @@
 
         /* Data loaders with graceful fallback links in console */
         async function loadGISTEMP() {
-            const data = await fetch('/climate/public/data/gistemp.json').then(r => r.json());
-            renderLine('tempChart', data, { fmtY: v => v.toFixed(2) });
+            await withChartLoading('tempChart', async () => {
+                const data = await fetch('data/gistemp.json').then(r => r.json());
+                renderLine('tempChart', data, { fmtY: v => v.toFixed(2) });
+            });
         }
 
         async function loadSeaLevel() {
-            const data = await fetch('/climate/public/data/sealevel.json').then(r => r.json());
-            renderLine('slrChart', data, { fmtY: v => nf0.format(v) });
+            await withChartLoading('slrChart', async () => {
+                const data = await fetch('data/sealevel.json').then(r => r.json());
+                renderLine('slrChart', data, { fmtY: v => nf0.format(v) });
+            });
         }
 
         async function loadCO2(targetId = 'co2Chart') {
-            const data = await fetch('/climate/public/data/co2.json').then(r => r.json());
-            renderLine(targetId, data, { fmtY: v => nf1.format(v) });
+            await withChartLoading(targetId, async () => {
+                const data = await fetch('data/co2.json').then(r => r.json());
+                renderLine(targetId, data, { fmtY: v => nf1.format(v) });
+            });
         }
 
         async function loadDisasterDamage(targetId = 'damageChart') {
-            const data = await fetch('/climate/public/data/damages.json').then(r => r.json());
-            renderLine(targetId, data, { fmtY: compactCurrency(v), yMin: 0 });
+            await withChartLoading(targetId, async () => {
+                const data = await fetch('data/damages.json').then(r => r.json());
+                renderLine(targetId, data, { fmtY: v => compactCurrency(v), yMin: 0 });
+            });
         }
 
         async function loadIDP(targetId = 'idpChart') {
-            const data = await fetch('/climate/public/data/idp.json').then(r => r.json());
-            renderLine(targetId, data, { fmtY: compact, yMin: 0 });
+            await withChartLoading(targetId, async () => {
+                const data = await fetch('data/idp.json').then(r => r.json());
+                renderLine(targetId, data, { fmtY: v => compact(v), yMin: 0 });
+            });
         }
 
 
@@ -1180,6 +1227,35 @@
         ]);
         // Load first tab by default
         activateTab('tab-co2');
+
+        async function loadJSON(url, fallbackElId) {
+            try {
+                const res = await fetch(url);
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                return await res.json();
+            } catch (err) {
+                const el = document.getElementById(fallbackElId);
+                el.innerHTML = '<div class="tiny muted">Data unavailable (' + err.message +
+                    '). Check ' + url + ' exists and is same-origin.</div>';
+                return null;
+            }
+        }
+
+        function setChartLoading(elId, isLoading) {
+            const el = document.getElementById(elId);
+            if (!el) return;
+            el.classList.toggle('loading', !!isLoading);
+            el.setAttribute('aria-busy', String(!!isLoading));
+            if (isLoading) el.innerHTML = ""; // clear before drawing; overlay handles the UI
+        }
+
+        async function withChartLoading(elId, work) {
+            setChartLoading(elId, true);
+            try { return await work(); }
+            finally { setChartLoading(elId, false); }
+        }
+
+
     </script>
 </body>
 

@@ -1023,6 +1023,10 @@
     <script>
         /* ---------- Config & helpers ---------- */
         const CURRENT_YEAR = 2025;
+        const DEATH_AGE = 86;      // tweak if you want a different default
+        const GENERATION = 30;     // years per generation (kids, grandkids)
+        const timelineEl = document.getElementById('timeline');
+        let deathMarkerEl = null;
 
         const nfCompact = new Intl.NumberFormat(undefined, { notation: 'compact', maximumFractionDigits: 1 });
         const nf0 = new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 });
@@ -1507,11 +1511,7 @@
             const ro = new ResizeObserver(() => { el.scrollLeft = 0; });
             ro.observe(el);
         })();
-        /* ---- Mortality marker logic ---- */
-        const DEATH_AGE = 86;      // tweak if you want a different default
-        const GENERATION = 30;     // years per generation (kids, grandkids)
-        const timelineEl = document.getElementById('timeline');
-        let deathMarkerEl = null;
+
 
         function ensureDeathMarker() {
             if (deathMarkerEl) return deathMarkerEl;

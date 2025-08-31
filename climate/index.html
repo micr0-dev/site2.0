@@ -1293,7 +1293,6 @@
             });
         }, { threshold: 0.35 });
 
-        // ADD
         function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
 
         function measureSVGText(svg, text, { fontSize = 18, fontWeight = '400', rotate = 0 } = {}) {
@@ -1315,7 +1314,7 @@
             for (const s of yTickLabels) {
                 maxYw = Math.max(maxYw, measureSVGText(svg, s, { fontSize, fontWeight: '600' }).width);
             }
-            const PAD_LEFT = Math.ceil(maxYw) + 14;
+            const PAD_LEFT = Math.ceil(maxYw) + 6;
 
             // Bottom pad = tallest X tick (height) + gutter
             let xH = 0;
@@ -1326,7 +1325,7 @@
 
             // Top/right are small but nonzero; leave extra on right for legend fade & divider
             const PAD_TOP = 10;
-            const PAD_RIGHT = 18;
+            const PAD_RIGHT = 10;
 
             return { PAD_LEFT, PAD_RIGHT, PAD_TOP, PAD_BOTTOM };
         }

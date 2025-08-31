@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const cursor = document.querySelector('.cursor');
     const cursorFollower = document.querySelector('.cursor-follower');
 
@@ -52,6 +52,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const phrases = [
         'Developer',
         'Linux Enthusiast',
+        'Climate Activist',
         'Community Builder',
         'Go Programmer',
         'Accessibility Advocate',
@@ -97,7 +98,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function animateStats() {
         const stats = document.querySelectorAll('.stat-number');
-    
+
         stats.forEach(stat => {
             const target = parseInt(stat.getAttribute('data-count'));
             let current = 0;
@@ -105,7 +106,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const frameDuration = 1000 / 60; // 60fps
             const totalFrames = Math.round(duration / frameDuration);
             let frame = 0;
-    
+
             // Use requestAnimationFrame for smoother animation
             function animate() {
                 frame++;
@@ -113,17 +114,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 const progress = frame / totalFrames;
                 const easing = 1 - Math.pow(1 - progress, 3); // Cubic ease out
                 current = Math.round(easing * target);
-    
+
                 // Format the number with commas for thousands
                 stat.textContent = current.toLocaleString();
-    
+
                 if (frame < totalFrames) {
                     requestAnimationFrame(animate);
                 } else {
                     stat.textContent = target.toLocaleString();
                 }
             }
-    
+
             // Start the animation
             requestAnimationFrame(animate);
         });
@@ -131,26 +132,26 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize the animation when the stats section is in view
     function initStatsAnimation() {
-    const statsSection = document.querySelector('.about-stats');
-    if (!statsSection) return;
+        const statsSection = document.querySelector('.about-stats');
+        if (!statsSection) return;
 
-    // Use Intersection Observer to trigger animation when scrolled into view
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                animateStats();
-                observer.unobserve(entry.target); // Only animate once
-            }
-        });
-    }, { threshold: 0.2 }); // Trigger when 20% of the element is visible
+        // Use Intersection Observer to trigger animation when scrolled into view
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    animateStats();
+                    observer.unobserve(entry.target); // Only animate once
+                }
+            });
+        }, { threshold: 0.2 }); // Trigger when 20% of the element is visible
 
-    observer.observe(statsSection);
-}
+        observer.observe(statsSection);
+    }
 
-// Initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
-    initStatsAnimation();
-});
+    // Initialize when DOM is loaded
+    document.addEventListener('DOMContentLoaded', function () {
+        initStatsAnimation();
+    });
 
     // Animate skill bars
     const skillLevels = document.querySelectorAll('.skill-level');
@@ -186,7 +187,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const themeToggle = document.querySelector('.theme-toggle');
     const body = document.body;
 
-    themeToggle.addEventListener('click', function() {
+    themeToggle.addEventListener('click', function () {
         if (body.getAttribute('data-theme') === 'light') {
             body.removeAttribute('data-theme');
             themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
@@ -198,7 +199,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Smooth scrolling for navigation links
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function(e) {
+        anchor.addEventListener('click', function (e) {
             e.preventDefault();
 
             const targetId = this.getAttribute('href');
@@ -216,7 +217,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Header scroll effect
     const header = document.querySelector('header');
 
-    window.addEventListener('scroll', function() {
+    window.addEventListener('scroll', function () {
         if (window.scrollY > 50) {
             header.classList.add('scrolled');
         } else {
@@ -228,7 +229,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const contactForm = document.querySelector('.contact-form form');
 
     if (contactForm) {
-        contactForm.addEventListener('submit', function(e) {
+        contactForm.addEventListener('submit', function (e) {
             e.preventDefault();
 
             // Get form values
@@ -320,7 +321,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (window.innerWidth <= 768) {
         header.querySelector('.container').insertBefore(mobileMenuToggle, nav);
 
-        mobileMenuToggle.addEventListener('click', function() {
+        mobileMenuToggle.addEventListener('click', function () {
             nav.classList.toggle('active');
 
             if (nav.classList.contains('active')) {
@@ -332,7 +333,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Close mobile menu when clicking a nav link
         document.querySelectorAll('nav a').forEach(link => {
-            link.addEventListener('click', function() {
+            link.addEventListener('click', function () {
                 nav.classList.remove('active');
                 mobileMenuToggle.innerHTML = '<i class="fas fa-bars"></i>';
             });
@@ -456,8 +457,8 @@ document.addEventListener('DOMContentLoaded', function() {
     document.head.appendChild(preloaderStyle);
 
     // Hide preloader after loading
-    window.addEventListener('load', function() {
-        setTimeout(function() {
+    window.addEventListener('load', function () {
+        setTimeout(function () {
             preloader.style.opacity = '0';
             preloader.style.visibility = 'hidden';
         }, 1000);
@@ -478,12 +479,12 @@ function initSkillSliders() {
         const firstSetWidth = Array.from(cards)
             .slice(0, firstSetCount)
             .reduce((width, card) => {
-                return width + card.offsetWidth + parseInt(getComputedStyle(card).marginLeft) + 
+                return width + card.offsetWidth + parseInt(getComputedStyle(card).marginLeft) +
                     parseInt(getComputedStyle(card).marginRight);
             }, 0);
 
         // Set the animation keyframes dynamically
-        const keyframes = direction === 'left' 
+        const keyframes = direction === 'left'
             ? `@keyframes scroll-left { 0% { transform: translateX(0); } 100% { transform: translateX(-${firstSetWidth}px); } }`
             : `@keyframes scroll-right { 0% { transform: translateX(-${firstSetWidth}px); } 100% { transform: translateX(0); } }`;
 
@@ -495,32 +496,32 @@ function initSkillSliders() {
 }
 
 // Call this after the DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Wait for images to load before initializing sliders
     window.addEventListener('load', initSkillSliders);
 });
 
 // Handle interest card flipping
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Initialize interest cards
     function initInterestCards() {
         const interestCards = document.querySelectorAll('.interest-card');
-    
+
         interestCards.forEach(card => {
-            card.addEventListener('click', function() {
+            card.addEventListener('click', function () {
                 // Remove the flipped class from all other cards
                 interestCards.forEach(otherCard => {
                     if (otherCard !== card) {
                         otherCard.classList.remove('flipped');
                     }
                 });
-    
+
                 // Toggle the flipped class on the clicked card
                 this.classList.toggle('flipped');
             });
         });
     }
-    
+
 
     initInterestCards();
 
@@ -528,7 +529,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const musicCards = document.querySelectorAll('.music-items .interest-item');
 
     musicCards.forEach(card => {
-        card.addEventListener('mouseenter', function() {
+        card.addEventListener('mouseenter', function () {
             const visualizer = this.querySelector('.music-visualizer');
 
             if (visualizer) {
@@ -546,7 +547,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add parallax effect to interest cards
     const interestsSection = document.getElementById('interests');
 
-    interestsSection.addEventListener('mousemove', function(e) {
+    interestsSection.addEventListener('mousemove', function (e) {
         // Only apply parallax to cards that are NOT flipped
         const cards = document.querySelectorAll('.interest-card:not(.flipped) .interest-card-inner');
 
@@ -562,7 +563,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    interestsSection.addEventListener('mouseleave', function() {
+    interestsSection.addEventListener('mouseleave', function () {
         // Reset transform for non-flipped cards only
         const cards = document.querySelectorAll('.interest-card:not(.flipped) .interest-card-inner');
 
@@ -633,12 +634,12 @@ function initMusicCard() {
     }
 
     // Event listeners
-    playButton.addEventListener('click', function(e) {
+    playButton.addEventListener('click', function (e) {
         e.stopPropagation();
         togglePlay();
     });
 
-    pauseButton.addEventListener('click', function(e) {
+    pauseButton.addEventListener('click', function (e) {
         e.stopPropagation();
         togglePlay();
     });
@@ -659,7 +660,7 @@ function initMusicCard() {
 
     // Clean up when card is flipped back
     const interestCard = musicCard.closest('.interest-card');
-    interestCard.addEventListener('click', function() {
+    interestCard.addEventListener('click', function () {
         if (!this.classList.contains('flipped') && isPlaying) {
             togglePlay();
         }
@@ -667,7 +668,7 @@ function initMusicCard() {
 }
 
 // Initialize music card when DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     initMusicCard();
 });
 
@@ -720,7 +721,7 @@ function updateAltbotFollowerCount() {
 }
 
 // Update the follower count when the page loads
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     updateAltbotFollowerCount();
 
     // Optionally, update the count periodically (every hour)
@@ -738,7 +739,7 @@ function createTerminalEasterEgg() {
     let isTerminalActive = false;
     let terminalContainer;
 
-    takeThereLink.addEventListener('click', function(e) {
+    takeThereLink.addEventListener('click', function (e) {
         toggleTerminal();
     });
 
@@ -784,7 +785,7 @@ function createTerminalEasterEgg() {
             micr0Card.querySelector('.project-content').appendChild(terminalContainer);
 
             // Add close button handler
-            terminalHeader.querySelector('.terminal-close').addEventListener('click', function() {
+            terminalHeader.querySelector('.terminal-close').addEventListener('click', function () {
                 // Restore original content
                 micr0Card.querySelector('.project-content').innerHTML = originalContent;
                 micr0Card.classList.remove('terminal-active');
@@ -867,11 +868,11 @@ function createTerminalEasterEgg() {
 }
 
 // Initialize terminal easter egg
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     createTerminalEasterEgg();
 });
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const terminalContent = document.querySelector('.terminal-content');
     const typedText = document.querySelector('.typed-text');
 
@@ -917,7 +918,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Digital Fingerprint Tracker
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Only initialize if the privacy demo section exists
     if (!document.getElementById('privacy-demo')) return;
 
@@ -1075,13 +1076,13 @@ class DigitalFingerprintTracker {
     setupIntersectionObserver() {
         // Track which sections the user views the most
         const sections = document.querySelectorAll('section, div.section, [id]');
-    
+
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     // Get section ID or create one from content
                     let sectionId = entry.target.id;
-    
+
                     if (!sectionId) {
                         // Try to get heading text
                         const heading = entry.target.querySelector('h1, h2, h3, h4');
@@ -1091,13 +1092,13 @@ class DigitalFingerprintTracker {
                             sectionId = 'unnamed-section';
                         }
                     }
-    
+
                     // Also get class names for additional context
                     const classNames = Array.from(entry.target.classList).join(' ');
-    
+
                     // Store combined identifier
                     const identifier = `${sectionId} ${classNames}`.toLowerCase();
-    
+
                     if (!this.data.behavioral.focusedSections[identifier]) {
                         this.data.behavioral.focusedSections[identifier] = 0;
                     }
@@ -1105,10 +1106,10 @@ class DigitalFingerprintTracker {
                 }
             });
         }, { threshold: 0.5 });
-    
+
         sections.forEach(section => observer.observe(section));
     }
-    
+
 
     handleMouseMove(e) {
         if (!this.isTracking) return;
@@ -1155,7 +1156,7 @@ class DigitalFingerprintTracker {
         let targetType = target.tagName.toLowerCase();
 
         // Check if it's a link, button, or other interactive element
-        if (targetType === 'a' || targetType === 'button' || 
+        if (targetType === 'a' || targetType === 'button' ||
             target.closest('a') || target.closest('button')) {
             // User clicked an interactive element
             this.updateProgress(3);
@@ -1276,19 +1277,19 @@ class DigitalFingerprintTracker {
     revealFingerprint() {
         // Stop tracking
         this.isTracking = false;
-    
+
         // Hide the entire tracking container and reveal button
         const trackingContainer = document.querySelector('.tracking-indicator');
         const hintsContainer = document.querySelector('.tracking-hints-container');
         const revealContainer = document.querySelector('.fingerprint-reveal-container');
         const sectionHeader = document.querySelector('#privacy-demo .section-header');
-    
+
         // Fade out elements
         trackingContainer.style.opacity = '0';
         hintsContainer.style.opacity = '0';
         revealContainer.style.opacity = '0';
         sectionHeader.style.opacity = '0';
-    
+
         // Wait for fade out animation to complete
         setTimeout(() => {
             // Remove elements from DOM
@@ -1296,54 +1297,54 @@ class DigitalFingerprintTracker {
             hintsContainer.remove();
             revealContainer.remove();
             sectionHeader.remove();
-    
+
             // Generate inferences
             this.generateInferences();
-    
+
             // Populate results
             this.populateTechnicalProfile();
             this.populateBehavioralInsights();
             this.populateInferences();
-    
+
             // Show results
             this.resultsContainer.classList.remove('hidden');
             setTimeout(() => {
                 this.resultsContainer.classList.add('visible');
             }, 100);
-    
+
             // Scroll to results
             this.resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }, 500); // Match this with the CSS transition time
     }
-    
+
 
     generateInferences() {
         // Generate inferences based on collected data
         const technical = this.data.technical;
         const behavioral = this.data.behavioral;
-    
+
         // Calculate time spent on page
         const timeSpentMinutes = behavioral.totalTimeSpent / 60;
-    
+
         // Analyze mouse movement patterns
-        const avgMouseSpeed = behavioral.mouseSpeed.reduce((a, b) => a + b, 0) / 
-                             (behavioral.mouseSpeed.length || 1);
-    
+        const avgMouseSpeed = behavioral.mouseSpeed.reduce((a, b) => a + b, 0) /
+            (behavioral.mouseSpeed.length || 1);
+
         // Analyze scroll patterns
         const hasErraticScrolling = this.hasErraticScrolling();
-    
+
         // Determine most viewed section
         const mostViewedSection = this.getMostViewedSection();
-    
+
         // Infer device type and quality
         let deviceQuality = 'mid-range';
-        if (technical.screenResolution.width >= 2560 || 
+        if (technical.screenResolution.width >= 2560 ||
             technical.screenResolution.height >= 1440) {
             deviceQuality = 'high-end';
         } else if (technical.screenResolution.width <= 1280) {
             deviceQuality = 'budget';
         }
-    
+
         // Infer technical sophistication
         let techSophistication = 'average';
         if (technical.browser === 'Firefox' && technical.doNotTrack) {
@@ -1353,15 +1354,15 @@ class DigitalFingerprintTracker {
         } else if (technical.browser === 'Safari' && technical.os === 'macOS') {
             techSophistication = 'Apple ecosystem user';
         }
-    
+
         // Improved profession detection
         let profession = 'technology enthusiast';  // Default to a reasonable guess
         let professionConfidence = 45;  // Start with moderate confidence
-    
+
         // Check for section interests that might indicate profession
         const sectionIds = Object.keys(behavioral.focusedSections || {});
         const sectionTexts = sectionIds.join(' ').toLowerCase();
-    
+
         if (sectionTexts.includes('project') || sectionTexts.includes('portfolio')) {
             profession = 'software developer';
             professionConfidence = 65;
@@ -1375,7 +1376,7 @@ class DigitalFingerprintTracker {
             profession = 'content creator or writer';
             professionConfidence = 55;
         }
-    
+
         // Check browser and OS combinations for profession hints
         if (technical.browser === 'Chrome' && technical.os === 'macOS' && avgMouseSpeed > 0.5) {
             profession = 'software developer';
@@ -1387,7 +1388,7 @@ class DigitalFingerprintTracker {
             profession = 'privacy-conscious technologist';
             professionConfidence = Math.max(professionConfidence, 65);
         }
-    
+
         // Check interaction patterns
         if (avgMouseSpeed > 0.7 && !hasErraticScrolling && behavioral.clickCount > 10) {
             profession = 'experienced tech professional';
@@ -1396,13 +1397,13 @@ class DigitalFingerprintTracker {
             profession = 'casual technology user';
             professionConfidence = Math.max(professionConfidence, 50);
         }
-    
+
         // Check for copy events which might indicate research
         if (behavioral.copyEvents > 2) {
             profession = 'researcher or analyst';
             professionConfidence = Math.max(professionConfidence, 65);
         }
-    
+
         // Fallback for mobile users where mouse data isn't available
         if (technical.deviceType === 'Smartphone' || technical.deviceType === 'Tablet') {
             if (behavioral.scrollCount > 15 && timeSpentMinutes > 2) {
@@ -1410,11 +1411,11 @@ class DigitalFingerprintTracker {
                 professionConfidence = 55;
             }
         }
-    
+
         // Infer age range based on behavior
         let ageRange = '25-45';
         let ageConfidence = 40;
-    
+
         if (avgMouseSpeed < 0.3 && hasErraticScrolling) {
             ageRange = '45+';
             ageConfidence = 45;
@@ -1422,11 +1423,11 @@ class DigitalFingerprintTracker {
             ageRange = '18-30';
             ageConfidence = 50;
         }
-    
+
         // Infer visit purpose
         let visitPurpose = 'casual browsing';
         let purposeConfidence = 35;
-    
+
         if (timeSpentMinutes > 3 && behavioral.clickCount > 5) {
             visitPurpose = 'researching or evaluating';
             purposeConfidence = 60;
@@ -1434,10 +1435,10 @@ class DigitalFingerprintTracker {
             visitPurpose = 'gathering information';
             purposeConfidence = 70;
         }
-    
+
         // Infer interests
         const interests = [];
-    
+
         // Check section names for interests
         for (const section in behavioral.focusedSections) {
             const sectionName = section.toLowerCase();
@@ -1447,7 +1448,7 @@ class DigitalFingerprintTracker {
             if (sectionName.includes('contact')) interests.push('professional networking');
             if (sectionName.includes('blog')) interests.push('technical content');
         }
-    
+
         // If no specific interests found, add some based on behavior
         if (interests.length === 0) {
             if (behavioral.clickCount > 10) interests.push('interactive experiences');
@@ -1455,10 +1456,10 @@ class DigitalFingerprintTracker {
             if (technical.browser === 'Firefox') interests.push('privacy and security');
             interests.push('technology');
         }
-    
+
         // Remove duplicates
         const uniqueInterests = [...new Set(interests)];
-    
+
         // Store inferences
         this.data.inferred = {
             deviceQuality,
@@ -1483,7 +1484,7 @@ class DigitalFingerprintTracker {
             readingSpeed: this.inferReadingSpeed()
         };
     }
-    
+
 
     populateTechnicalProfile() {
         const technical = this.data.technical;
@@ -1521,8 +1522,8 @@ class DigitalFingerprintTracker {
         const timeSpent = this.formatTimeSpent(behavioral.totalTimeSpent);
 
         // Calculate average mouse speed
-        const avgMouseSpeed = behavioral.mouseSpeed.reduce((a, b) => a + b, 0) / 
-                             (behavioral.mouseSpeed.length || 1);
+        const avgMouseSpeed = behavioral.mouseSpeed.reduce((a, b) => a + b, 0) /
+            (behavioral.mouseSpeed.length || 1);
 
         // Determine scroll style
         const scrollStyle = this.getScrollStyle();
@@ -1593,14 +1594,14 @@ class DigitalFingerprintTracker {
     detectBrowser(ua) {
         // Basic browser detection
         if (ua.includes('Firefox/')) {
-            return { 
-                browser: 'Firefox', 
-                version: ua.match(/Firefox\/([\d.]+)/)[1] 
+            return {
+                browser: 'Firefox',
+                version: ua.match(/Firefox\/([\d.]+)/)[1]
             };
         } else if (ua.includes('Chrome/') && !ua.includes('Edg/') && !ua.includes('OPR/')) {
-            return { 
-                browser: 'Chrome', 
-                version: ua.match(/Chrome\/([\d.]+)/)[1] 
+            return {
+                browser: 'Chrome',
+                version: ua.match(/Chrome\/([\d.]+)/)[1]
             };
         } else if (ua.includes('Safari/') && !ua.includes('Chrome/')) {
             let version = '?';
@@ -1608,14 +1609,14 @@ class DigitalFingerprintTracker {
             if (versionMatch) version = versionMatch[1];
             return { browser: 'Safari', version };
         } else if (ua.includes('Edg/')) {
-            return { 
-                browser: 'Edge', 
-                version: ua.match(/Edg\/([\d.]+)/)[1] 
+            return {
+                browser: 'Edge',
+                version: ua.match(/Edg\/([\d.]+)/)[1]
             };
         } else if (ua.includes('OPR/')) {
-            return { 
-                browser: 'Opera', 
-                version: ua.match(/OPR\/([\d.]+)/)[1] 
+            return {
+                browser: 'Opera',
+                version: ua.match(/OPR\/([\d.]+)/)[1]
             };
         } else {
             return { browser: 'Unknown', version: '?' };
@@ -1649,9 +1650,9 @@ class DigitalFingerprintTracker {
     }
 
     getConnectionType() {
-        const connection = navigator.connection || 
-                          navigator.mozConnection || 
-                          navigator.webkitConnection;
+        const connection = navigator.connection ||
+            navigator.mozConnection ||
+            navigator.webkitConnection;
 
         if (connection) {
             if (connection.effectiveType) {
@@ -1664,8 +1665,8 @@ class DigitalFingerprintTracker {
         }
 
         // Estimate based on load time if connection info not available
-        const loadTime = window.performance.timing.domContentLoadedEventEnd - 
-                        window.performance.timing.navigationStart;
+        const loadTime = window.performance.timing.domContentLoadedEventEnd -
+            window.performance.timing.navigationStart;
 
         if (loadTime < 1000) {
             return 'fast connection';
@@ -1692,8 +1693,8 @@ class DigitalFingerprintTracker {
     detectAdBlocker() {
         // Simple ad blocker detection
         // This is a basic implementation - more sophisticated detection would require creating a bait element
-        return document.getElementById('ad-container') === null || 
-               window.getComputedStyle(document.getElementById('ad-container')).display === 'none';
+        return document.getElementById('ad-container') === null ||
+            window.getComputedStyle(document.getElementById('ad-container')).display === 'none';
     }
 
     getTimeOfDay() {
@@ -1721,30 +1722,30 @@ class DigitalFingerprintTracker {
     }
 
     // Add this method to the DigitalFingerprintTracker class
-getMostViewedSection() {
-    const sections = this.data.behavioral.focusedSections;
-    let mostViewed = 'unknown section';
-    let maxCount = 0;
+    getMostViewedSection() {
+        const sections = this.data.behavioral.focusedSections;
+        let mostViewed = 'unknown section';
+        let maxCount = 0;
 
-    for (const [section, count] of Object.entries(sections)) {
-        if (count > maxCount) {
-            maxCount = count;
-            mostViewed = section;
+        for (const [section, count] of Object.entries(sections)) {
+            if (count > maxCount) {
+                maxCount = count;
+                mostViewed = section;
+            }
         }
-    }
 
-    // Make the section name more readable
-    return mostViewed
-        .replace(/-/g, ' ')
-        .replace(/^unnamed section$/, 'this section')
-        .replace(/^section-/, '')
-        .replace(/^section /, '');
-}
+        // Make the section name more readable
+        return mostViewed
+            .replace(/-/g, ' ')
+            .replace(/^unnamed section$/, 'this section')
+            .replace(/^section-/, '')
+            .replace(/^section /, '');
+    }
 
 
     getMousePattern() {
-        const avgSpeed = this.data.behavioral.mouseSpeed.reduce((a, b) => a + b, 0) / 
-                        (this.data.behavioral.mouseSpeed.length || 1);
+        const avgSpeed = this.data.behavioral.mouseSpeed.reduce((a, b) => a + b, 0) /
+            (this.data.behavioral.mouseSpeed.length || 1);
 
         if (avgSpeed > 0.7) {
             return 'quick, confident movements';
@@ -1777,7 +1778,7 @@ getMostViewedSection() {
         let direction = pattern[1] > pattern[0] ? 'up' : 'down';
 
         for (let i = 2; i < pattern.length; i++) {
-            const newDirection = pattern[i] > pattern[i-1] ? 'up' : 'down';
+            const newDirection = pattern[i] > pattern[i - 1] ? 'up' : 'down';
             if (newDirection !== direction) {
                 changes++;
                 direction = newDirection;
@@ -1837,21 +1838,21 @@ getMostViewedSection() {
 }
 
 // Add to your script.js
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Button copy functionality with better visual feedback
     const copyButton = document.getElementById('copyButton');
-    
+
     if (copyButton) {
-        copyButton.addEventListener('click', function() {
+        copyButton.addEventListener('click', function () {
             const codeElement = copyButton.closest('.copy-field').querySelector('code');
             const textToCopy = codeElement.textContent;
-            
+
             navigator.clipboard.writeText(textToCopy).then(() => {
                 // Visual feedback
                 copyButton.classList.add('copy-success');
                 const originalIcon = copyButton.innerHTML;
                 copyButton.innerHTML = '<i class="fas fa-check"></i>';
-                
+
                 // Reset after 2 seconds
                 setTimeout(() => {
                     copyButton.innerHTML = originalIcon;

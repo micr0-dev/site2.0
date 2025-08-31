@@ -741,6 +741,18 @@
             pointer-events: none;
             /* don't block hover/scroll */
         }
+
+        .sr-only {
+            position: absolute !important;
+            width: 1px !important;
+            height: 1px !important;
+            padding: 0 !important;
+            margin: -1px !important;
+            overflow: hidden !important;
+            clip: rect(0, 0, 0, 0) !important;
+            white-space: nowrap !important;
+            border: 0 !important;
+        }
     </style>
 </head>
 
@@ -750,11 +762,14 @@
             <h1>
                 I am
                 <span class="age-inline">
-                    <span id="dial" class="dial" aria-label="Select your age (10 to 85)" role="listbox"></span>
+                    <span id="dial" class="dial" role="listbox" aria-label="Select your age (10 to 85)"
+                        aria-orientation="vertical" tabindex="0"></span>
+
                 </span>
                 . Here’s how climate change is likely to shape the rest of my life.
             </h1>
             <p class="muted tiny" style="margin-top:.5rem">Tip: scroll or flick the dial · press ↑/↓ with focus</p>
+            <span id="ageLive" class="sr-only" aria-live="polite" aria-atomic="true"></span>
         </section>
 
         <section class="timeline" id="timeline">
@@ -2106,6 +2121,24 @@
             }
             return proj;
         }
+
+        it.id = `age-opt-${a}`;
+        it.setAttribute('aria-posinset', String(a - MIN_AGE + 1));
+        it.setAttribute('aria-setsize', String(MAX_AGE - MIN_AGE + 1));
+        it.setAttribute('aria-label', `${a} years`);
+
+        dialEl.setAttribute('aria-activedescendant', `age-opt-${selAge}`);
+
+        // Backup announcement for SRs that don't follow activedescendant changes on scroll
+        const live = document.getElementById('ageLive');
+        if (document.activeElement === dialEl && live) {
+            live.textContent = `Age ${selAge}`;
+        }
+
+        if (e.key === 'Home') { e.preventDefault(); snapToIdx(0); }
+        if (e.key === 'End') { e.preventDefault(); snapToIdx(MAX_AGE - MIN_AGE); }
+        if (e.key === 'PageUp') { e.preventDefault(); snapToIdx(Math.max(0, idx - 5)); }
+        if (e.key === 'PageDown') { e.preventDefault(); snapToIdx(Math.min(MAX_AGE - MIN_AGE, idx + 5)); }
 
     </script>
 </body>

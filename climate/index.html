@@ -1314,7 +1314,7 @@
             for (const s of yTickLabels) {
                 maxYw = Math.max(maxYw, measureSVGText(svg, s, { fontSize, fontWeight: '600' }).width);
             }
-            const PAD_LEFT = Math.ceil(maxYw) + 6;
+            const PAD_LEFT = Math.ceil(maxYw);
 
             // Bottom pad = tallest X tick (height) + gutter
             let xH = 0;

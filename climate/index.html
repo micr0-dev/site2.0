@@ -627,6 +627,17 @@
                 font-weight: 900 !important;
                 scale: 1.5;
             }
+
+            .tabs {
+                flex-wrap: wrap;
+                gap: .3rem;
+                border-radius: 1.3rem;
+            }
+
+            .tab {
+                background: var(--soft);
+                border: 1px solid var(--line);
+            }
         }
 
         .finis {
@@ -1282,14 +1293,53 @@
             });
         }, { threshold: 0.35 });
 
+        // ADD
+        function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+
+        function measureSVGText(svg, text, { fontSize = 18, fontWeight = '400', rotate = 0 } = {}) {
+            const t = document.createElementNS(svg.namespaceURI, 'text');
+            t.textContent = text;
+            t.setAttribute('font-size', String(fontSize));
+            t.setAttribute('font-weight', String(fontWeight));
+            if (rotate) t.setAttribute('transform', `rotate(${rotate})`);
+            t.setAttribute('visibility', 'hidden');
+            svg.appendChild(t);
+            const box = t.getBBox();
+            t.remove();
+            return box; // {x,y,width,height}
+        }
+
+        function computePadding(svg, { xTickLabels, yTickLabels, fontSize = 18 }) {
+            // Left pad = widest Y tick + a little gutter
+            let maxYw = 0;
+            for (const s of yTickLabels) {
+                maxYw = Math.max(maxYw, measureSVGText(svg, s, { fontSize, fontWeight: '600' }).width);
+            }
+            const PAD_LEFT = Math.ceil(maxYw) + 14;
+
+            // Bottom pad = tallest X tick (height) + gutter
+            let xH = 0;
+            for (const s of xTickLabels) {
+                xH = Math.max(xH, measureSVGText(svg, s, { fontSize }).height);
+            }
+            const PAD_BOTTOM = Math.ceil(xH) + 18;
+
+            // Top/right are small but nonzero; leave extra on right for legend fade & divider
+            const PAD_TOP = 10;
+            const PAD_RIGHT = 18;
+
+            return { PAD_LEFT, PAD_RIGHT, PAD_TOP, PAD_BOTTOM };
+        }
+
+
         function renderLine(elId, series, {
             fmtY = (v) => v.toFixed(2),
             yMin = null,
             yMax = null,
-            projectionTo = null,      // numeric end year for this section
-            scenario = null,          // <-- pass scenario series here (array of {x,y})
-            monotonic = false,        // e.g., sea level true; temperatures false
-            jaggedFactor = 0.6        // how “jagged” the dotted line looks
+            projectionTo = null,
+            scenario = null,
+            monotonic = false,
+            jaggedFactor = 0.6
         } = {}) {
             const el = document.getElementById(elId); el.innerHTML = '';
             if (!series || series.length === 0) {
@@ -1302,19 +1352,31 @@
                 ? buildScenarioProjection({ elId, hist: series, scenario, endYear: endY, monotonic, jaggedFactor })
                 : [];
 
-            // axes over both (avoid dup-ing last observed point)
             const combined = proj.length ? series.concat(proj.slice(1)) : series;
 
+            // --- SVG and ranges
             const svg = mkSVG(); el.appendChild(svg);
-            const W = 800, H = 450, PAD = 60; svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+            const W = 800, H = 450; svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
 
             const xs = combined.map(d => d.x), ys = combined.map(d => d.y);
             const minX = Math.min(...xs), maxX = Math.max(...xs);
             const minY = yMin !== null ? yMin : Math.min(...ys);
             const maxY = yMax !== null ? yMax : Math.max(...ys);
 
-            const x = v => PAD + ((v - minX) / (maxX - minX)) * (W - 2 * PAD);
-            const y = v => H - PAD - ((v - minY) / (maxY - minY)) * (H - 2 * PAD);
+            const ticks = (min, max, steps) => { const s = max - min, st = s / steps, t = []; for (let i = 0; i <= steps; i++) t.push(min + i * st); return t; };
+            const xTicksVals = ticks(minX, maxX, 6).map(v => Math.round(v));
+            const yTicksVals = ticks(minY, maxY, 5);
+
+            // NEW: compute dynamic paddings based on measured label sizes
+            const { PAD_LEFT, PAD_RIGHT, PAD_TOP, PAD_BOTTOM } =
+                computePadding(svg, {
+                    xTickLabels: xTicksVals.map(v => String(v)),
+                    yTickLabels: yTicksVals.map(v => fmtY(v)),
+                    fontSize: 18
+                });
+
+            const x = v => PAD_LEFT + ((v - minX) / (maxX - minX)) * (W - PAD_LEFT - PAD_RIGHT);
+            const y = v => H - PAD_BOTTOM - ((v - minY) / (maxY - minY)) * (H - PAD_TOP - PAD_BOTTOM);
 
             // grid
             const g = document.createElementNS(svg.namespaceURI, 'g');
@@ -1322,24 +1384,23 @@
             for (let i = 0; i < 6; i++) {
                 const gy = y(minY + i * (maxY - minY) / 5);
                 const ln = document.createElementNS(svg.namespaceURI, 'line');
-                ln.setAttribute('x1', PAD); ln.setAttribute('x2', W - PAD);
+                ln.setAttribute('x1', PAD_LEFT); ln.setAttribute('x2', W - PAD_RIGHT);
                 ln.setAttribute('y1', gy); ln.setAttribute('y2', gy);
                 g.appendChild(ln);
             }
             svg.appendChild(g);
 
-            // axes
+            // axes (use measured pads)
             const axis = document.createElementNS(svg.namespaceURI, 'g');
-            const ticks = (min, max, steps) => { const s = max - min, st = s / steps, t = []; for (let i = 0; i <= steps; i++)t.push(min + i * st); return t; };
-            ticks(minX, maxX, 6).map(v => Math.round(v)).forEach(v => {
+            xTicksVals.forEach(v => {
                 const tx = document.createElementNS(svg.namespaceURI, 'text');
-                tx.setAttribute('x', x(v)); tx.setAttribute('y', H - PAD + 24);
+                tx.setAttribute('x', x(v)); tx.setAttribute('y', H - PAD_BOTTOM + 24);
                 tx.setAttribute('text-anchor', 'middle'); tx.setAttribute('font-size', '18'); tx.textContent = v;
                 axis.appendChild(tx);
             });
-            ticks(minY, maxY, 5).forEach(v => {
+            yTicksVals.forEach(v => {
                 const ty = document.createElementNS(svg.namespaceURI, 'text');
-                ty.setAttribute('x', PAD - 10); ty.setAttribute('y', y(v) + 4);
+                ty.setAttribute('x', PAD_LEFT - 10); ty.setAttribute('y', y(v) + 4);
                 ty.setAttribute('text-anchor', 'end'); ty.setAttribute('font-size', '18'); ty.textContent = fmtY(v);
                 axis.appendChild(ty);
             });
@@ -1347,10 +1408,9 @@
 
             const cutoffXVal = series[series.length - 1].x;
             const cutoffX = x(cutoffXVal);
-
             const toPath = pts => pts.map((p, i) => (i ? 'L' : 'M') + x(p.x) + ',' + y(p.y)).join(' ');
 
-            // historical (solid)
+            // historical
             const hist = document.createElementNS(svg.namespaceURI, 'path');
             hist.setAttribute('d', toPath(series));
             hist.setAttribute('fill', 'none');
@@ -1361,48 +1421,33 @@
             svg.appendChild(hist);
 
             if (proj.length >= 2) {
-                // where projection begins (last real x)
-                const cutoffXVal = series[series.length - 1].x;
-                const cutoffX = x(cutoffXVal);
-
-                // --- subtle right-side fade (same grey, slight opacity)
-                // unique gradient id per chart
+                // fade area now respects dynamic pads
                 const gradId = `projFade-${elId}`;
                 const defs = document.createElementNS(svg.namespaceURI, 'defs');
                 const lg = document.createElementNS(svg.namespaceURI, 'linearGradient');
                 lg.setAttribute('id', gradId);
                 lg.setAttribute('x1', '0'); lg.setAttribute('y1', '0'); lg.setAttribute('x2', '1'); lg.setAttribute('y2', '0');
                 const s0 = document.createElementNS(svg.namespaceURI, 'stop');
-                s0.setAttribute('offset', '0%');
-                s0.setAttribute('stop-color', 'var(--proj)');
-                s0.setAttribute('stop-opacity', '0.12');           // <- very slight
+                s0.setAttribute('offset', '0%'); s0.setAttribute('stop-color', 'var(--proj)'); s0.setAttribute('stop-opacity', '0.12');
                 const s1 = document.createElementNS(svg.namespaceURI, 'stop');
-                s1.setAttribute('offset', '100%');
-                s1.setAttribute('stop-color', 'var(--proj)');
-                s1.setAttribute('stop-opacity', '0');
-                lg.appendChild(s0); lg.appendChild(s1); defs.appendChild(lg);
-                svg.appendChild(defs);
+                s1.setAttribute('offset', '100%'); s1.setAttribute('stop-color', 'var(--proj)'); s1.setAttribute('stop-opacity', '0');
+                lg.appendChild(s0); lg.appendChild(s1); defs.appendChild(lg); svg.appendChild(defs);
 
-                // fade rectangle under the lines
                 const fade = document.createElementNS(svg.namespaceURI, 'rect');
                 fade.setAttribute('x', cutoffX);
-                fade.setAttribute('y', PAD);
-                fade.setAttribute('width', Math.max(0, (W - PAD) - cutoffX));
-                fade.setAttribute('height', (H - 2 * PAD));
+                fade.setAttribute('y', PAD_TOP);
+                fade.setAttribute('width', Math.max(0, (W - PAD_RIGHT) - cutoffX));
+                fade.setAttribute('height', (H - PAD_TOP - PAD_BOTTOM));
                 fade.setAttribute('fill', `url(#${gradId})`);
                 fade.setAttribute('pointer-events', 'none');
                 svg.appendChild(fade);
 
-                // vertical divider at projection start (inside plot area only)
                 const divider = document.createElementNS(svg.namespaceURI, 'line');
-                divider.setAttribute('x1', cutoffX);
-                divider.setAttribute('x2', cutoffX);
-                divider.setAttribute('y1', PAD);
-                divider.setAttribute('y2', H - PAD);
+                divider.setAttribute('x1', cutoffX); divider.setAttribute('x2', cutoffX);
+                divider.setAttribute('y1', PAD_TOP); divider.setAttribute('y2', H - PAD_BOTTOM);
                 divider.setAttribute('class', 'proj-divider');
                 svg.appendChild(divider);
 
-                // dotted projection line
                 const projPath = document.createElementNS(svg.namespaceURI, 'path');
                 projPath.setAttribute('d', toPath(proj));
                 projPath.setAttribute('fill', 'none');
@@ -1411,41 +1456,62 @@
                 projPath.setAttribute('stroke-width', '3');
                 projPath.setAttribute('stroke-linecap', 'round');
                 projPath.setAttribute('stroke-dasharray', '6 6');
-                projPath.setAttribute('data-line', 'proj');   // keep sequential animation
+                projPath.setAttribute('data-line', 'proj');
                 svg.appendChild(projPath);
 
-                // bottom "PROJECTION" label (below the plot so the line won't cross it)
-                const labelX = Math.min(cutoffX + 10, W - PAD - 4); // to the right of the divider
-                const labelY = H - PAD - 6;                          // a few px above the x-axis
-                const lbl = document.createElementNS(svg.namespaceURI, 'text');
-                lbl.textContent = 'PROJECTION';
-                lbl.setAttribute('class', 'proj-label');
-                lbl.setAttribute('text-anchor', 'start');
-                lbl.setAttribute('dominant-baseline', 'middle');
-                lbl.setAttribute('x', labelX);
-                lbl.setAttribute('y', labelY);
-                // rotate around its own anchor point so it stays near the axis line
-                lbl.setAttribute('transform', `rotate(-90 ${labelX} ${labelY})`);
-                svg.appendChild(lbl);
+                // vertical "PROJECTION" label — clamp within plot area
+                const label = document.createElementNS(svg.namespaceURI, 'text');
+                label.textContent = 'PROJECTION';
+                label.setAttribute('class', 'proj-label');
+                label.setAttribute('text-anchor', 'start');
+                label.setAttribute('dominant-baseline', 'middle');
 
+                let labelX = Math.min(cutoffX + 10, W - PAD_RIGHT - 4);
+                let labelY = H - PAD_BOTTOM - 6;
+                label.setAttribute('x', labelX);
+                label.setAttribute('y', labelY);
+                label.setAttribute('transform', `rotate(-90 ${labelX} ${labelY})`);
+                svg.appendChild(label);
 
-                // optional: legend chip (unchanged)
+                // measure and nudge if needed so it never clips on small/mobile or long locales
+                const b = label.getBBox();
+                const minY = PAD_TOP + 2, maxY = H - PAD_BOTTOM - 2;
+                const minX = PAD_LEFT + 2, maxX = W - PAD_RIGHT - 2;
+                // If any side overflows, shift the anchor back in-bounds
+                if (b.y < minY || (b.y + b.height) > maxY) {
+                    // shift along plot vertically
+                    const overTop = minY - b.y;
+                    const overBot = (b.y + b.height) - maxY;
+                    labelY = clamp(labelY + (overTop > 0 ? overTop : -overBot), minY, maxY);
+                }
+                if (b.x < minX || (b.x + b.width) > maxX) {
+                    const overLeft = minX - b.x;
+                    const overRight = (b.x + b.width) - maxX;
+                    labelX = clamp(labelX + (overLeft > 0 ? overLeft : -overRight), minX, maxX);
+                }
+                label.setAttribute('x', labelX);
+                label.setAttribute('y', labelY);
+                label.setAttribute('transform', `rotate(-90 ${labelX} ${labelY})`);
+
+                // legend chip still auto-adds to nearest .legend (unchanged)
                 const legend = el.closest('.card, .panel')?.querySelector('.legend');
                 if (legend && !legend.querySelector('.key.proj')) {
                     const chip = document.createElement('span');
                     chip.className = 'swatch';
-                    chip.innerHTML = '<span class="key proj"></span> Projection';
+                    chip.innerHTML = '<span class="key.proj key"></span> Projection';
+                    // NOTE: your CSS expects `.key.proj`; ensure the class order includes both
+                    chip.querySelector('.key')?.classList.add('proj');
                     legend.appendChild(chip);
                 }
             }
 
-            // prep & animate sequentially when in view
             const r = el.getBoundingClientRect();
             chartObserver.observe(el);
             if (r.top < window.innerHeight * 0.8 && r.bottom > window.innerHeight * 0.2) {
                 animateChartSequential(el);
             }
         }
+
 
 
         /* Data loaders with graceful fallback links in console */

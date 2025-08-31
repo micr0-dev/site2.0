@@ -315,7 +315,8 @@
             font-weight: 700;
             color: var(--muted);
             letter-spacing: .08em;
-            text-transform: uppercase
+            text-transform: uppercase;
+            margin-bottom: .7rem;
         }
 
         /* Charts */
@@ -885,6 +886,12 @@
                                     </div>
                                     <p class="note">Source: IDMC via World Bank / Our World in Data.</p>
                                 </div>
+                                <div class="legend tiny" id="miniLegend">
+                                    <span class="swatch">
+                                        <span class="key"></span>
+                                        <span id="miniLegendLabel">Global CO₂ (incl. land-use change)</span>
+                                    </span>
+                                </div>
                             </div>
                         </div>
                         <div class="col-12 card" style="background:#fff4f4">
@@ -1064,6 +1071,13 @@
         const GENERATION = 30;     // years per generation (kids, grandkids)
         const timelineEl = document.getElementById('timeline');
         let deathMarkerEl = null;
+
+        const legendLabels = {
+            'tab-co2': 'Global CO₂ (incl. land-use change)',
+            'tab-damage': 'Global disaster damages',
+            'tab-idp': 'New internal displacements (disasters)'
+        };
+
 
         const nfCompact = new Intl.NumberFormat(undefined, { notation: 'compact', maximumFractionDigits: 1 });
         const nf0 = new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 });
@@ -1531,6 +1545,8 @@
             Object.entries(panels).forEach(([k, el]) => el.hidden = (k !== id));
             if (!loadedOnce.has(id)) { loaders[id](); loadedOnce.add(id); }
             panels[id].focus();
+            const labelEl = document.getElementById('miniLegendLabel');
+            if (labelEl) labelEl.textContent = legendLabels[id];
             const chartNow = panels[id].querySelector('.chart');
             const pathNow = chartNow?.querySelector('path');
             if (pathNow) { resetPath(pathNow); requestAnimationFrame(() => animatePath(pathNow)); }

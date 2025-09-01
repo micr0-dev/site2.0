@@ -1144,7 +1144,13 @@
         (function buildDial() {
             const track = document.createElement('div'); track.className = 'dial-track'; dialEl.appendChild(track);
             for (let a = MIN_AGE; a <= MAX_AGE; a++) {
-                const it = document.createElement('div'); it.className = 'dial-item'; it.textContent = a; it.setAttribute('role', 'option'); it.dataset.value = a;
+                const it = document.createElement('div');
+                it.id = `age-opt-${a}`;
+                it.setAttribute('aria-posinset', String(a - MIN_AGE + 1));
+                it.setAttribute('aria-setsize', String(MAX_AGE - MIN_AGE + 1));
+                it.setAttribute('aria-label', `${a} years`);
+
+                it.className = 'dial-item'; it.textContent = a; it.setAttribute('role', 'option'); it.dataset.value = a;
                 track.appendChild(it);
             }
             // center the start age
@@ -1154,6 +1160,15 @@
             const updateSel = () => {
                 const idx = Math.round(dialEl.scrollTop / ITEM_TOTAL);
                 const selAge = Math.min(MAX_AGE, Math.max(MIN_AGE, MIN_AGE + idx));
+                // Announce selection to AT
+                dialEl.setAttribute('aria-activedescendant', `age-opt-${selAge}`);
+
+                // Backup announcement for SRs that don't follow activedescendant changes on scroll
+                const live = document.getElementById('ageLive');
+                if (document.activeElement === dialEl && live) {
+                    live.textContent = `Age ${selAge}`;
+                }
+
                 [...dialEl.querySelectorAll('.dial-item')].forEach((el, i) => {
                     el.dataset.selected = (i === idx);
                     el.dataset.near = (Math.abs(i - idx) <= 1);
@@ -1181,6 +1196,11 @@
                 const idx = Math.round(dialEl.scrollTop / ITEM_TOTAL);
                 if (e.key === 'ArrowUp') { e.preventDefault(); snapToIdx(Math.max(0, idx - 1)); }
                 if (e.key === 'ArrowDown') { e.preventDefault(); snapToIdx(Math.min(MAX_AGE - MIN_AGE, idx + 1)); }
+                if (e.key === 'Home') { e.preventDefault(); snapToIdx(0); }
+                if (e.key === 'End') { e.preventDefault(); snapToIdx(MAX_AGE - MIN_AGE); }
+                if (e.key === 'PageUp') { e.preventDefault(); snapToIdx(Math.max(0, idx - 5)); }
+                if (e.key === 'PageDown') { e.preventDefault(); snapToIdx(Math.min(MAX_AGE - MIN_AGE, idx + 5)); }
+
             });
 
             // allow click to jump
@@ -2121,25 +2141,6 @@
             }
             return proj;
         }
-
-        it.id = `age-opt-${a}`;
-        it.setAttribute('aria-posinset', String(a - MIN_AGE + 1));
-        it.setAttribute('aria-setsize', String(MAX_AGE - MIN_AGE + 1));
-        it.setAttribute('aria-label', `${a} years`);
-
-        dialEl.setAttribute('aria-activedescendant', `age-opt-${selAge}`);
-
-        // Backup announcement for SRs that don't follow activedescendant changes on scroll
-        const live = document.getElementById('ageLive');
-        if (document.activeElement === dialEl && live) {
-            live.textContent = `Age ${selAge}`;
-        }
-
-        if (e.key === 'Home') { e.preventDefault(); snapToIdx(0); }
-        if (e.key === 'End') { e.preventDefault(); snapToIdx(MAX_AGE - MIN_AGE); }
-        if (e.key === 'PageUp') { e.preventDefault(); snapToIdx(Math.max(0, idx - 5)); }
-        if (e.key === 'PageDown') { e.preventDefault(); snapToIdx(Math.min(MAX_AGE - MIN_AGE, idx + 5)); }
-
     </script>
 </body>
 

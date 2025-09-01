@@ -1556,7 +1556,19 @@
                 renderLine('tempChart', data, {
                     fmtY: v => v.toFixed(2) + ' °C'
                 });
+
+
+                const first = Math.round(data[0].x);
+                const last = Math.round(data[data.length - 1].x);
+                setChartAlt('tempChart', {
+                    title: 'Global temperature (NASA GISTEMP v4)',
+                    desc:
+                        `Global annual temperature anomalies, ${first}–${last}, baseline 1951–1980 ` +
+                        `(≈0.2–0.3 °C lower than 1850–1900 used for Paris targets). ` +
+                        `Green line shows a clear warming trend with faster rise since the late 20th century.`
+                });
             });
+
         }
 
 
@@ -1574,7 +1586,18 @@
                     monotonic: false,
                     jaggedFactor: 2.0
                 });
+
+                const first = Math.round(data[0].x);
+                const last = Math.round(data[data.length - 1].x);
+                setChartAlt('slrChart', {
+                    title: 'Sea level change since 1993 (NASA/JPL)',
+                    desc:
+                        `Global mean sea level from satellite altimetry, ${first}–${endY}. ` +
+                        `Green: smoothed GMSL with GIA applied. Dotted gray: projection beyond ${last}. ` +
+                        `Overall rise continues through the projection.`
+                });
             });
+
         }
 
         const formatCO2Gt = vTonnes => nf1.format(vTonnes / 1e9) + ' Gt';
@@ -1591,6 +1614,15 @@
                     monotonic: false,
                     jaggedFactor: 0.5
                 });
+                const first = Math.round(data[0].x);
+                const last = Math.round(data[data.length - 1].x);
+                setChartAlt(targetId, {
+                    title: 'Global CO₂ emissions (incl. land-use change)',
+                    desc:
+                        `Annual emissions, ${first}–${endY}. ` +
+                        `Green line rises steeply after ~1950; dotted gray shows projection beyond ${last}. ` +
+                        `Y-axis in gigatonnes of CO₂.`
+                });
             });
         }
 
@@ -1605,8 +1637,17 @@
                     scenario: scen,
                     jaggedFactor: 0.7
                 });
-
+                const first = Math.round(data[0].x);
+                const last = Math.round(data[data.length - 1].x);
+                setChartAlt(targetId, {
+                    title: 'Global disaster damages',
+                    desc:
+                        `Annual economic damages (not inflation-adjusted), ${first}–${endY}. ` +
+                        `Low through early 20th century, larger and more volatile after the 1990s. ` +
+                        `Dotted gray projects further increase beyond ${last}. Y-axis in USD billions.`
+                });
             });
+
         }
 
         async function loadIDP(targetId = 'idpChart') {
@@ -1619,6 +1660,15 @@
                     projectionTo: endY,
                     scenario: scen,
                     jaggedFactor: 0.6
+                });
+                const first = Math.round(data[0].x);
+                const last = Math.round(data[data.length - 1].x);
+                setChartAlt(targetId, {
+                    title: 'New internal displacements from disasters',
+                    desc:
+                        `Annual new displacements, ${first}–${endY}. ` +
+                        `Historical series shows peaks and troughs; dotted gray indicates an upward projection beyond ${last}. ` +
+                        `Y-axis in millions of people.`
                 });
             });
         }
@@ -2140,6 +2190,40 @@
                 }
             }
             return proj;
+        }
+
+        function setChartAlt(elId, { title, desc }) {
+            const host = document.getElementById(elId);
+            if (!host) return;
+            const svg = host.querySelector('svg');
+            if (!svg) return;
+
+            // Remove any existing title/desc to avoid duplicates
+            svg.querySelector('title')?.remove();
+            svg.querySelector('desc')?.remove();
+
+            const tId = `${elId}-title`;
+            const dId = `${elId}-desc`;
+
+            const t = document.createElementNS(svg.namespaceURI, 'title');
+            t.id = tId;
+            t.textContent = title;
+
+            const d = document.createElementNS(svg.namespaceURI, 'desc');
+            d.id = dId;
+            d.textContent = desc;
+
+            // Put title/desc first so AT picks them up reliably
+            svg.insertBefore(d, svg.firstChild);
+            svg.insertBefore(t, svg.firstChild);
+
+            svg.setAttribute('role', 'img');
+            svg.setAttribute('aria-labelledby', tId);
+            svg.setAttribute('aria-describedby', dId);
+
+            // Avoid double announcements from the container
+            host.removeAttribute('role');
+            host.removeAttribute('aria-label');
         }
     </script>
 </body>

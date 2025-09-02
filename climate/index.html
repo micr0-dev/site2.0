@@ -1219,12 +1219,22 @@
                 const y = parseInt(el.getAttribute('data-year'), 10);
                 const computed = Math.max(0, currentAge + (y - CURRENT_YEAR));
                 el.textContent = computed;
+
+                const strong = el.closest('strong');                   // keep it bold if wrapped
+                (strong ?? el).querySelectorAll('.age-nice').forEach(n => n.remove()); // clean old
+                if (computed === 69) {
+                    const egg = document.createElement('span');
+                    egg.className = 'age-nice';
+                    egg.textContent = ' (nice.)';
+                    (strong ?? el).appendChild(egg);
+                }
             });
-            // keep the document title in sync with the dial
-            document.title = `I am ${currentAge} — How climate change will shape my life`;
+
+            document.title = `I am ${currentAge}${currentAge === 69 ? ' (nice.)' : ''} — How climate change will shape my life`;
 
             updateMortality(currentAge);
         }
+
 
 
         /* ---------- Reveal on scroll ---------- */

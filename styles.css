@@ -4444,7 +4444,7 @@ a, button, .btn, .theme-toggle, input, textarea, select {
     justify-content: center;
     gap: var(--space-md);
     padding: var(--space-md) 0;
-    max-width: 800px;
+    max-width: 1000px;
 }
 
 .pixel-button {

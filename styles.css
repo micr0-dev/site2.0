@@ -120,6 +120,69 @@ body {
     z-index: var(--z-negative);
 }
 
+/* No-JS fallbacks */
+.no-js-notice {
+    display: block;
+    margin: var(--space-md) 0;
+    padding: var(--space-md);
+    border-radius: var(--border-radius-md);
+    background-color: var(--bg-secondary);
+    border-left: 4px solid var(--accent-primary);
+    color: var(--text-primary);
+}
+
+html.js .no-js-notice {
+    display: none;
+}
+
+html.no-js .js-required {
+    display: none !important;
+}
+
+html.no-js i[data-icon]::before {
+    content: attr(data-icon) !important;
+    font-family: inherit !important;
+    font-style: normal;
+    font-weight: 600;
+    display: inline-block;
+    line-height: 1;
+}
+
+html.no-js .verification-item.loading {
+    display: none;
+}
+
+.verification-item.notice {
+    text-align: center;
+    font-size: 0.95rem;
+    opacity: 0.85;
+}
+
+.verification-item.notice .verification-manual {
+    margin-top: var(--space-sm);
+}
+
+.verification-item.notice ol {
+    margin: var(--space-sm) 0 0;
+    padding-left: 1.25rem;
+    text-align: left;
+}
+
+.verification-item.notice li {
+    margin-bottom: 0.35rem;
+}
+
+.no-js-hint {
+    display: none;
+    margin-top: var(--space-sm);
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+html.no-js .no-js-hint {
+    display: block;
+}
+
 /* Typography */
 h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-mono);
@@ -1034,6 +1097,44 @@ nav ul li a:hover::after {
 
 .verification-card p {
     color: var(--text-secondary);
+}
+
+.onion-placeholder {
+    display: inline-block;
+    padding: 0.2rem 0.5rem;
+    border-radius: var(--border-radius-sm);
+    background-color: var(--bg-tertiary);
+    color: var(--accent-primary);
+    font-family: var(--font-mono);
+    font-size: 0.95rem;
+}
+
+.tor-instructions {
+    padding-left: 1.25rem;
+    color: var(--text-secondary);
+}
+
+.tor-instructions li {
+    margin-bottom: 0.5rem;
+}
+
+.js-preference-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+}
+
+.tor-note {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+html[data-js-disabled="true"] .js-disable-action {
+    display: none;
+}
+
+html:not([data-js-disabled="true"]) .js-enable-action {
+    display: none;
 }
 
 .verification-actions {
@@ -1961,6 +2062,42 @@ body[data-theme="light"] .cursor-follower {
     flex-direction: column;
     padding: var(--space-md);
     overflow-y: auto;
+}
+
+html.no-js .interest-card {
+    height: auto;
+    perspective: none;
+}
+
+html.no-js .interest-card-inner {
+    transform: none !important;
+    display: block;
+    cursor: default;
+}
+
+html.no-js .interest-card-front,
+html.no-js .interest-card-back {
+    position: static;
+    transform: none !important;
+    box-shadow: none;
+}
+
+html.no-js .interest-card-front::before {
+    display: none;
+}
+
+html.no-js .interest-card-front {
+    display: none;
+}
+
+
+html.no-js .interest-card-back {
+    margin-top: var(--space-md);
+    background-color: var(--bg-secondary);
+}
+
+html.no-js .interest-card-hint {
+    display: none;
 }
 
 .interest-details {
@@ -3669,13 +3806,39 @@ body.light-mode .header .logo-text {
     50% { opacity: 0; }
 }
 
-/* Hide default cursor */
-html, body {
+/* Custom cursor visibility */
+html.js, html.js body {
     cursor: none;
 }
 
-a, button, .btn, .theme-toggle, input, textarea, select {
+html.js a,
+html.js button,
+html.js .btn,
+html.js .theme-toggle,
+html.js input,
+html.js textarea,
+html.js select {
     cursor: none;
+}
+
+html.no-js,
+html.no-js body {
+    cursor: auto;
+}
+
+html.no-js a,
+html.no-js button,
+html.no-js .btn,
+html.no-js .theme-toggle,
+html.no-js input,
+html.no-js textarea,
+html.no-js select {
+    cursor: pointer;
+}
+
+html.no-js .cursor,
+html.no-js .cursor-follower {
+    display: none;
 }
 
 @media (max-width: 480px) {

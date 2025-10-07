@@ -1,17 +1,44 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="no-js">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>micr0byte | Developer & Community Builder</title>
+    <script>
+        (function () {
+            var doc = document.documentElement;
+            var disabled = false;
+
+            try {
+                disabled = localStorage.getItem('micr0:disableJS') === 'true';
+            } catch (err) {
+                disabled = false;
+            }
+
+            if (disabled) {
+                doc.classList.add('no-js');
+                doc.classList.remove('js');
+                doc.setAttribute('data-js-disabled', 'true');
+                return;
+            }
+
+            doc.classList.remove('no-js');
+            doc.classList.add('js');
+            doc.removeAttribute('data-js-disabled');
+        })();
+    </script>
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="me" href="https://micr0.dev">
     <link rel="me" href="https://github.com/micr0-dev">
+    <link rel="me" href="https://wetdry.world/@micr0">
     <link rel="me" href="https://fuzzies.wtf/@micr0">
     <link rel="me" href="https://bsky.app/profile/micr0.dev">
+    <link rel="prefetch" href="/climate/">
+    <meta name="fediverse:creator" content="@micr0@wetdry.world">
 </head>
 <body>
     <div class="noise-overlay"></div>
@@ -29,12 +56,12 @@
                     <li><a href="#about">About</a></li>
                     <li><a href="#projects">Projects</a></li>
                     <li><a href="#skills">Skills</a></li>
-                    <li><a href="#verification">Verification</a></li>
+                    <li><a href="/climate/">Climate</a></li>
                     <li><a href="#contact">Contact</a></li>
                 </ul>
             </nav>
             <div class="theme-toggle">
-                <i class="fas fa-moon"></i>
+                <i class="fas fa-moon" aria-hidden="true" data-icon="🌙"></i>
             </div>
         </div>
     </header>
@@ -45,7 +72,7 @@
                 <div class="hero-content">
                     <h1 class="glitch" data-text="micr0byte">micr0byte</h1>
                     <div class="typewriter">
-                        <span id="typewriter-text"></span>
+                        <span id="typewriter-text" data-default="Developer">Developer</span>
                         <span class="cursor-blink">|</span>
                     </div>
                     <p class="hero-description">Building accessible tools for the Fediverse and beyond.</p>
@@ -112,18 +139,18 @@
                     </div>
                     <div class="about-stats">
                         <div class="stat-item">
-                            <div class="stat-icon"><i class="fas fa-code-branch"></i></div>
-                            <div class="stat-number" data-count="56">0</div>
+                            <div class="stat-icon"><i class="fas fa-code-branch" aria-hidden="true" data-icon="🌿"></i></div>
+                            <div class="stat-number" data-count="56">56</div>
                             <div class="stat-label">Open Source Projects</div>
                         </div>
                         <div class="stat-item">
-                            <div class="stat-icon"><i class="fas fa-star"></i></div>
-                            <div class="stat-number" data-count="349">0</div>
+                            <div class="stat-icon"><i class="fas fa-star" aria-hidden="true" data-icon="★"></i></div>
+                            <div class="stat-number" data-count="349">349</div>
                             <div class="stat-label">GitHub Stars</div>
                         </div>
                         <div class="stat-item">
-                            <div class="stat-icon"><i class="fas fa-robot"></i></div>
-                            <div class="stat-number" data-count="6">0</div>
+                            <div class="stat-icon"><i class="fas fa-robot" aria-hidden="true" data-icon="🤖"></i></div>
+                            <div class="stat-number" data-count="6">6</div>
                             <div class="stat-label">Fediverse Bots</div>
                         </div>
                     </div>
@@ -142,13 +169,13 @@
                         <div class="project-content">
                             <h3>Altbot</h3>
                             <div class="project-stats">
-                                <span class="project-stat"><i class="fas fa-user-group"></i> 1.4K</span>
-                                <span class="project-stat"><i class="fas fa-code"></i> Go</span>
+                                <span class="project-stat"><i class="fas fa-user-group" aria-hidden="true" data-icon="👥"></i> 1.4K</span>
+                                <span class="project-stat"><i class="fas fa-code" aria-hidden="true" data-icon="</>"></i> Go</span>
                             </div>
                             <p>An accessibility bot for the Fediverse that generates alt-text descriptions for images, videos, and audio, making content more accessible to users with visual impairments.</p>
                             <div class="project-links">
-                                <a href="https://fuzzies.wtf/@altbot" class="project-link"><i class="fas fa-external-link-alt"></i> Try it</a>
-                                <a href="https://github.com/micr0-dev/AltBot" class="project-link"><i class="fab fa-github"></i> View on GitHub</a>
+                                <a href="https://fuzzies.wtf/@altbot" class="project-link"><i class="fas fa-external-link-alt" aria-hidden="true" data-icon="↗"></i> Try it</a>
+                                <a href="https://github.com/micr0-dev/AltBot" class="project-link"><i class="fab fa-github" aria-hidden="true" data-icon="GH"></i> View on GitHub</a>
                             </div>
                         </div>
                     </div>
@@ -157,12 +184,12 @@
                         <div class="project-content">
                             <h3>Lexido</h3>
                             <div class="project-stats">
-                                <span class="project-stat"><i class="fas fa-star"></i> 227</span>
-                                <span class="project-stat"><i class="fas fa-code"></i> Go</span>
+                                <span class="project-stat"><i class="fas fa-star" aria-hidden="true" data-icon="★"></i> 227</span>
+                                <span class="project-stat"><i class="fas fa-code" aria-hidden="true" data-icon="</>"></i> Go</span>
                             </div>
                             <p>A terminal assistant powered by generative AI that provides a sleek interface for AI interactions directly from the command line.</p>
                             <div class="project-links">
-                                <a href="https://github.com/micr0-dev/Lexido" class="project-link"><i class="fab fa-github"></i> View on GitHub</a>
+                                <a href="https://github.com/micr0-dev/Lexido" class="project-link"><i class="fab fa-github" aria-hidden="true" data-icon="GH"></i> View on GitHub</a>
                             </div>
                         </div>
                         <div class="project-image">
@@ -192,11 +219,11 @@
                         <div class="project-content">
                             <h3>fuzzies.wtf</h3>
                             <div class="project-stats">
-                                <span class="project-stat"><i class="fas fa-server"></i> Mastodon/Akkoma</span>
+                                <span class="project-stat"><i class="fas fa-server" aria-hidden="true" data-icon="🖥️"></i> Mastodon/Akkoma</span>
                             </div>
                             <p>A Mastodon instance that supports both Mastodon and Akkoma frontends, creating a welcoming digital space in the Fediverse.</p>
                             <div class="project-links">
-                                <a href="https://fuzzies.wtf" class="project-link"><i class="fas fa-external-link-alt"></i> Visit Instance</a>
+                                <a href="https://fuzzies.wtf" class="project-link"><i class="fas fa-external-link-alt" aria-hidden="true" data-icon="↗"></i> Visit Instance</a>
                             </div>
                         </div>
                     </div>
@@ -205,11 +232,11 @@
                         <div class="project-content">
                             <h3>wetdry.world</h3>
                             <div class="project-stats">
-                                <span class="project-stat"><i class="fas fa-server"></i> Mastodon/Akkoma</span>
+                                <span class="project-stat"><i class="fas fa-server" aria-hidden="true" data-icon="🖥️"></i> Mastodon/Akkoma</span>
                             </div>
                             <p>Administrator of a Mastodon instance where thousands of tech nerds shitpost about gaming, code, and whatever else. Built on our custom Chuckya software that actually works.</p>
                             <div class="project-links">
-                                <a href="https://fuzzies.wtf" class="project-link"><i class="fas fa-external-link-alt"></i> Visit Instance</a>
+                                <a href="https://fuzzies.wtf" class="project-link"><i class="fas fa-external-link-alt" aria-hidden="true" data-icon="↗"></i> Visit Instance</a>
                             </div>
                         </div>
                     </div>
@@ -218,12 +245,12 @@
                         <div class="project-content">
                             <h3>owl-license</h3>
                             <div class="project-stats">
-                                <span class="project-stat"><i class="fas fa-code"></i> License</span>
+                                <span class="project-stat"><i class="fas fa-code" aria-hidden="true" data-icon="</>"></i> License</span>
                             </div>
                             <p>A brutally honest open source license for burnt-out developers that lets people use your code while acknowledging the realities of software maintenance.</p>
                             <div class="project-links">
-                                <a href="https://github.com/micr0-dev/owl-license" class="project-link"><i class="fab fa-github"></i> View on GitHub</a>
-                                <a href="https://owl-license.org" class="project-link"><i class="fas fa-external-link-alt"></i> Visit Website</a>
+                                <a href="https://github.com/micr0-dev/owl-license" class="project-link"><i class="fab fa-github" aria-hidden="true" data-icon="GH"></i> View on GitHub</a>
+                                <a href="https://owl-license.org" class="project-link"><i class="fas fa-external-link-alt" aria-hidden="true" data-icon="↗"></i> Visit Website</a>
                             </div>
                         </div>
                     </div>
@@ -232,12 +259,12 @@
                         <div class="project-content">
                             <h3>askr.page</h3>
                             <div class="project-stats">
-                                <span class="project-stat"><i class="fas fa-code"></i> Go, Web</span>
+                                <span class="project-stat"><i class="fas fa-code" aria-hidden="true" data-icon="</>"></i> Go, Web</span>
                             </div>
                             <p> A personal AMA site that allows users to ask questions and receive answers in a unique and engaging format.</p>
                             <div class="project-links">
-                                <a href="https://q.micr0.dev" class="project-link"><i class="fas fa-external-link-alt"></i> Ask me!</a>
-                                <a href="https://github.com/micr0-dev/askr.page" class="project-link"><i class="fab fa-github"></i> View on GitHub</a>
+                                <a href="https://q.micr0.dev" class="project-link"><i class="fas fa-external-link-alt" aria-hidden="true" data-icon="↗"></i> Ask me!</a>
+                                <a href="https://github.com/micr0-dev/askr.page" class="project-link"><i class="fab fa-github" aria-hidden="true" data-icon="GH"></i> View on GitHub</a>
                             </div>
                         </div>
                     </div>
@@ -246,12 +273,12 @@
                         <div class="project-content">
                             <h3>micr0.dev</h3>
                             <div class="project-stats">
-                                <span class="project-stat"><i class="fas fa-code"></i> Web</span>
+                                <span class="project-stat"><i class="fas fa-code" aria-hidden="true" data-icon="</>"></i> Web</span>
                             </div>
                             <p> My personal website, showcasing my projects, skills, and experiences in a clean and modern design.</p>
                             <div class="project-links">
-                                <a href="https://micr0.dev" class="project-link take-there-link"><i class="fas fa-external-link-alt"></i> Take me there!</a>
-                                <a href="https://github.com/micr0-dev/site2.0" class="project-link"><i class="fab fa-github"></i> View on GitHub</a>
+                                <a href="https://micr0.dev" class="project-link take-there-link"><i class="fas fa-external-link-alt" aria-hidden="true" data-icon="↗"></i> Take me there!</a>
+                                <a href="https://github.com/micr0-dev/site2.0" class="project-link"><i class="fab fa-github" aria-hidden="true" data-icon="GH"></i> View on GitHub</a>
                             </div>
                         </div>
                     </div>
@@ -260,11 +287,11 @@
                         <div class="project-content">
                             <h3>micr0fetch</h3>
                             <div class="project-stats">
-                                <span class="project-stat"><i class="fas fa-code"></i> Go</span>
+                                <span class="project-stat"><i class="fas fa-code" aria-hidden="true" data-icon="</>"></i> Go</span>
                             </div>
                             <p>A system information fetching tool written in Go, providing a clean and efficient way to display system details in the terminal.</p>
                             <div class="project-links">
-                                <a href="https://github.com/micr0-dev/micr0fetch" class="project-link"><i class="fab fa-github"></i> View on GitHub</a>
+                                <a href="https://github.com/micr0-dev/micr0fetch" class="project-link"><i class="fab fa-github" aria-hidden="true" data-icon="GH"></i> View on GitHub</a>
                             </div>
                         </div>
                     </div>
@@ -273,11 +300,11 @@
                         <div class="project-content">
                             <h3>Micr0Watchy</h3>
                             <div class="project-stats">
-                                <span class="project-stat"><i class="fas fa-code"></i> C++</span>
+                                <span class="project-stat"><i class="fas fa-code" aria-hidden="true" data-icon="</>"></i> C++</span>
                             </div>
                             <p>A back-end and front-end system for Watchy with Spotify and OpenWeather integration, enhancing the smartwatch experience.</p>
                             <div class="project-links">
-                                <a href="https://github.com/micr0-dev/Micr0Watchy" class="project-link"><i class="fab fa-github"></i> View on GitHub</a>
+                                <a href="https://github.com/micr0-dev/Micr0Watchy" class="project-link"><i class="fab fa-github" aria-hidden="true" data-icon="GH"></i> View on GitHub</a>
                             </div>
                         </div>
                     </div>
@@ -286,12 +313,12 @@
                         <div class="project-content">
                             <h3>masto-chatbot</h3>
                             <div class="project-stats">
-                                <span class="project-stat"><i class="fas fa-code"></i> Go</span>
+                                <span class="project-stat"><i class="fas fa-code" aria-hidden="true" data-icon="</>"></i> Go</span>
                             </div>
                             <p>A Gemini-powered chatbot for Mastodon, bringing AI conversation capabilities to the Fediverse.</p>
                             <div class="project-links">
-                                <a href="https://github.com/micr0-dev/masto-chatbot" class="project-link"><i class="fab fa-github"></i> View on GitHub</a>
-                                <a href="https://fuzzies.wtf/@macr0" class="project-link"><i class="fas fa-external-link-alt"></i> Try it</a>
+                                <a href="https://github.com/micr0-dev/masto-chatbot" class="project-link"><i class="fab fa-github" aria-hidden="true" data-icon="GH"></i> View on GitHub</a>
+                                <a href="https://fuzzies.wtf/@macr0" class="project-link"><i class="fas fa-external-link-alt" aria-hidden="true" data-icon="↗"></i> Try it</a>
                             </div>
                         </div>
                     </div>
@@ -688,7 +715,7 @@
                     <h2>Personal <span class="accent">Interests</span></h2>
                     <div class="section-line"></div>
                 </div>
-        
+
                 <div class="interests-wrapper">
                     <div class="interests-content">
                         <!-- Gaming -->
@@ -696,7 +723,7 @@
                             <div class="interest-card-inner">
                                 <div class="interest-card-front">
                                     <div class="interest-icon-wrapper">
-                                        <i class="fas fa-gamepad"></i>
+                                        <i class="fas fa-gamepad" aria-hidden="true" data-icon="🎮"></i>
                                     </div>
                                     <h3>Gaming</h3>
                                     <div class="interest-card-hint">Click to explore</div>
@@ -733,7 +760,7 @@
                             <div class="interest-card-inner">
                                 <div class="interest-card-front">
                                     <div class="interest-icon-wrapper">
-                                        <i class="fas fa-film"></i>
+                                        <i class="fas fa-film" aria-hidden="true" data-icon="🎬"></i>
                                     </div>
                                     <h3>Media</h3>
                                     <div class="interest-card-hint">Click to explore</div>
@@ -770,7 +797,7 @@
                             <div class="interest-card-inner">
                                 <div class="interest-card-front">
                                     <div class="interest-icon-wrapper">
-                                        <i class="fas fa-music"></i>
+                                        <i class="fas fa-music" aria-hidden="true" data-icon="🎵"></i>
                                     </div>
                                     <h3>Music</h3>
                                     <div class="interest-card-hint">Click to explore</div>
@@ -784,7 +811,7 @@
                                             <div class="spotify-album">
                                                 <img src="https://image-cdn-ak.spotifycdn.com/image/ab67706c0000d72ce0aa6d4e63c02bebd3ac6ca3" alt="EDM Playlist">
                                                 <div class="spotify-play-button">
-                                                    <i class="fas fa-play"></i>
+                                                    <i class="fas fa-play" aria-hidden="true" data-icon="▶"></i>
                                                 </div>
                                             </div>
                                             <div class="spotify-info">
@@ -802,7 +829,7 @@
                         
                                         <div class="spotify-link">
                                             <a href="https://open.spotify.com/playlist/5m6MPrxmkxiQHuk8R0uYwW" target="_blank">
-                                                <i class="fab fa-spotify"></i> Open in Spotify
+                                                <i class="fab fa-spotify" aria-hidden="true" data-icon="🎧"></i> Open in Spotify
                                             </a>
                                         </div>
                         
@@ -839,27 +866,33 @@
                     <h2>Digital <span class="accent">Fingerprint</span></h2>
                     <div class="section-line"></div>
                 </div>
+
+                
+                    <div class="no-js-notice" role="status">
+                        Good on you for disabling JavaScript! This tracking demo can’t gather anything while it’s off, so enjoy the privacy boost!
+                    </div>
+                
         
                 <div class="privacy-demo-container">
-                    <div class="tracking-indicator">
+                    <div class="tracking-indicator js-required">
                         <div class="tracking-progress">
                             <div class="tracking-bar"></div>
                         </div>
                         <div class="tracking-status">Observing your digital footprint...</div>
                     </div>
         
-                    <div class="tracking-hints-container">
+                    <div class="tracking-hints-container js-required">
                         <!-- Hints will appear here dynamically -->
                     </div>
         
-                    <div class="fingerprint-reveal-container hidden">
+                    <div class="fingerprint-reveal-container hidden js-required">
                         <button id="reveal-fingerprint" class="reveal-button">
                             <span class="fingerprint-icon">👁️</span>
                             <span>Reveal what I've learned about you</span>
                         </button>
                     </div>
         
-                    <div id="fingerprint-results" class="hidden">
+                    <div id="fingerprint-results" class="hidden js-required">
                         <div class="fingerprint-header">
                             <h3>Your Digital Fingerprint</h3>
                             <p class="fingerprint-subtitle">Information collected during this single visit</p>
@@ -976,15 +1009,48 @@
                     
                     <div class="button-share">
                         <div class="share-header">
-                            <i class="fas fa-link"></i>
+                            <i class="fas fa-link" aria-hidden="true" data-icon="🔗"></i>
                             <span>Add my button to your site</span>
                         </div>
                         <div class="copy-field">
                             <pre><code>&lt;a href="https://micr0.dev/"&gt;&lt;img src="https://micr0.dev/88x31.gif"&gt;&lt;/a&gt;</code></pre>
-                            <button class="copy-button" id="copyButton" aria-label="Copy code">
-                                <i class="fas fa-copy"></i>
+                            <button class="copy-button js-required" id="copyButton" aria-label="Copy code">
+                                <i class="fas fa-copy" aria-hidden="true" data-icon="⧉"></i>
                             </button>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="hidden-service">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Tor <span class="accent">Hidden Service</span></h2>
+                    <div class="section-line"></div>
+                </div>
+
+                <div class="verification-grid tor-grid">
+                    <div class="verification-card">
+                        <h3>Access via Tor</h3>
+                        <p>A JavaScript-free mirror is available as a Tor hidden service so you can browse micr0.dev without leaking network metadata.</p>
+                        <p><strong>.onion address:</strong> <code class="onion-placeholder">coming soon</code></p>
+                        <p>How to visit it:</p>
+                        <ol class="tor-instructions">
+                            <li>Install the latest Tor Browser from <a href="https://www.torproject.org/" rel="noopener" target="_blank">torproject.org</a>.</li>
+                            <li>Open Tor Browser and paste the `.onion` address into the URL bar.</li>
+                            <li>Verify the page against the checksums.</li>
+                        </ol>
+                        <p>The final address will be published here, inside <code>/.well-known/identity.json</code>.</p>
+                    </div>
+                    <div class="verification-card">
+                        <h3>Disable JS for fun</h3>
+                        <p>Toggle the site into a JavaScript-free mode in this browser. This will refresh the site.</p>
+                        <div class="js-preference-actions">
+                            <button class="btn secondary js-disable-action" id="disable-js-button" type="button">Disable site JavaScript</button>
+                            <button class="btn primary js-enable-action" id="enable-js-button" type="button">Re-enable JavaScript</button>
+                        </div>
+                        <p class="tor-note">This stores a local preference. Clearing site data or choosing “Re-enable JavaScript” restores animations and interactive features.</p>
                     </div>
                 </div>
             </div>
@@ -1010,6 +1076,18 @@
                         <p>The profiles below are declared in <code>identity.json</code>. Each platform links back here using <code>rel="me"</code> or its native handle verification.</p>
                         <div id="profile-verifications" class="verification-list" aria-live="polite">
                             <div class="verification-item loading">Loading verification data…</div>
+                            JavaScript is disabled, so profile proofs are hidden.
+                                <div class="verification-item notice">
+                                    <div class="verification-manual">
+                                        <p>You can verify manually:</p>
+                                        <ol>
+                                            <li>Open the <code>identity.json</code> file above.</li>
+                                            <li>Copy the profile URL you want to check.</li>
+                                            <li>Visit that profile and confirm it links back to <strong>micr0.dev</strong> or lists the same handle.</li>
+                                        </ol>
+                                    </div>
+                                </div>
+                            
                         </div>
                     </div>
                 </div>
@@ -1028,19 +1106,19 @@
                     </div>
                     <div class="contact-links">
                         <a href="https://github.com/micr0-dev" class="contact-link" rel="me">
-                            <div class="contact-icon"><i class="fab fa-github"></i></div>
+                            <div class="contact-icon"><i class="fab fa-github" aria-hidden="true" data-icon="GH"></i></div>
                             <div class="contact-platform">GitHub</div>
                         </a>
                         <a href="https://fuzzies.wtf/@micr0" class="contact-link" rel="me">
-                            <div class="contact-icon"><i class="fab fa-mastodon"></i></div>
+                            <div class="contact-icon"><i class="fab fa-mastodon" aria-hidden="true" data-icon="MA"></i></div>
                             <div class="contact-platform">Mastodon</div>
                         </a>
                         <a href="mailto:micr0@micr0.dev" class="contact-link">
-                            <div class="contact-icon"><i class="fas fa-envelope"></i></div>
+                            <div class="contact-icon"><i class="fas fa-envelope" aria-hidden="true" data-icon="✉"></i></div>
                             <div class="contact-platform">Email</div>
                         </a>
                         <a href="https://bsky.app/profile/micr0.dev" class="contact-link" rel="me">
-                            <div class="contact-icon"><i class="fa-brands fa-bluesky"></i></div>
+                            <div class="contact-icon"><i class="fa-brands fa-bluesky" aria-hidden="true" data-icon="☁"></i></div>
                             <div class="contact-platform">Bluesky</div>
                         </a>
                     </div>
@@ -1063,20 +1141,59 @@
                     <a href="#contact">Contact</a>
                 </div>
                 <div class="footer-social">
-                    <a href="https://github.com/micr0-dev" class="social-link" rel="me"><i class="fab fa-github"></i></a>
-                    <a href="https://wetdry.world/@micr0" class="social-link" rel="me"><i class="fab fa-mastodon"></i></a>
-                    <a href="mailto:micr0@micr0.dev" class="social-link"><i class="fas fa-envelope"></i></a>
-                    <a href="https://bsky.app/profile/micr0.dev" class="social-link" rel="me"><i class="fa-brands fa-bluesky"></i></a>
+                    <a href="https://github.com/micr0-dev" class="social-link" rel="me"><i class="fab fa-github" aria-hidden="true" data-icon="GH"></i></a>
+                    <a href="https://wetdry.world/@micr0" class="social-link" rel="me"><i class="fab fa-mastodon" aria-hidden="true" data-icon="MA"></i></a>
+                    <a href="mailto:micr0@micr0.dev" class="social-link"><i class="fas fa-envelope" aria-hidden="true" data-icon="✉"></i></a>
+                    <a href="https://bsky.app/profile/micr0.dev" class="social-link" rel="me"><i class="fa-brands fa-bluesky" aria-hidden="true" data-icon="☁"></i></a>
                 </div>
             </div>
+            <p>Onion Variant: <code class="onion-placeholder">coming soon</code></p>
+
             <div class="footer-bottom">
                 <p>&copy; 2025 micr0byte. All rights reserved. <a href="https://old.micr0.dev">Old Site.</a></p> 
-                <p>Built with <span class="accent">❤️</span> and a lot of <span class="accent">coffee</span>.</p>
+                <p>Built with <span class="accent">❤️</span> and a lot of coffee.</p>
             </div>
+
         </div>
     </footer>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="script.js"></script>
+    <script>
+        (function () {
+            var disableButton = document.getElementById('disable-js-button');
+            var enableButton = document.getElementById('enable-js-button');
+            var jsDisabled = false;
+
+            try {
+                jsDisabled = localStorage.getItem('micr0:disableJS') === 'true';
+            } catch (err) {
+                jsDisabled = false;
+            }
+
+            if (disableButton) {
+                disableButton.addEventListener('click', function () {
+                    try {
+                        localStorage.setItem('micr0:disableJS', 'true');
+                    } catch (err) {
+                        console.warn('Unable to store preference:', err);
+                    }
+                    window.location.reload();
+                });
+            }
+
+            if (enableButton) {
+                enableButton.addEventListener('click', function () {
+                    try {
+                        localStorage.removeItem('micr0:disableJS');
+                    } catch (err) {
+                        console.warn('Unable to clear preference:', err);
+                    }
+                    window.location.reload();
+                });
+            }
+
+        })();
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script>
+    <script src="script.js" defer></script>
 </body>
 </html>

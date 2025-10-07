@@ -1,4 +1,7 @@
-document.addEventListener('DOMContentLoaded', function () {
+if (document.documentElement.classList.contains('no-js')) {
+    console.info('Site JavaScript disabled by user preference.');
+} else {
+    document.addEventListener('DOMContentLoaded', function () {
     const cursor = document.querySelector('.cursor');
     const cursorFollower = document.querySelector('.cursor-follower');
 
@@ -61,37 +64,42 @@ document.addEventListener('DOMContentLoaded', function () {
         'Privacy Advocate'
     ];
 
-    let phraseIndex = 0;
-    let charIndex = 0;
-    let isDeleting = false;
-    let typingSpeed = 100;
+    if (typewriterText) {
+        let phraseIndex = 0;
+        let charIndex = 0;
+        let isDeleting = false;
+        let typingSpeed = 100;
 
-    function typeWriter() {
-        const currentPhrase = phrases[phraseIndex];
+        // Remove the static fallback text once JS takes over
+        typewriterText.textContent = '';
 
-        if (isDeleting) {
-            typewriterText.textContent = currentPhrase.substring(0, charIndex - 1);
-            charIndex--;
-            typingSpeed = 50;
-        } else {
-            typewriterText.textContent = currentPhrase.substring(0, charIndex + 1);
-            charIndex++;
-            typingSpeed = 100;
+        function typeWriter() {
+            const currentPhrase = phrases[phraseIndex];
+
+            if (isDeleting) {
+                typewriterText.textContent = currentPhrase.substring(0, Math.max(charIndex - 1, 0));
+                charIndex--;
+                typingSpeed = 50;
+            } else {
+                typewriterText.textContent = currentPhrase.substring(0, charIndex + 1);
+                charIndex++;
+                typingSpeed = 100;
+            }
+
+            if (!isDeleting && charIndex === currentPhrase.length) {
+                isDeleting = true;
+                typingSpeed = 1000; // Pause at the end
+            } else if (isDeleting && charIndex === 0) {
+                isDeleting = false;
+                phraseIndex = (phraseIndex + 1) % phrases.length;
+                typingSpeed = 500; // Pause before typing next phrase
+            }
+
+            setTimeout(typeWriter, typingSpeed);
         }
 
-        if (!isDeleting && charIndex === currentPhrase.length) {
-            isDeleting = true;
-            typingSpeed = 1000; // Pause at the end
-        } else if (isDeleting && charIndex === 0) {
-            isDeleting = false;
-            phraseIndex = (phraseIndex + 1) % phrases.length;
-            typingSpeed = 500; // Pause before typing next phrase
-        }
-
-        setTimeout(typeWriter, typingSpeed);
+        typeWriter();
     }
-
-    typeWriter();
 
     // Animate stats counter
     const stats = document.querySelectorAll('.stat-number');
@@ -200,8 +208,6 @@ document.addEventListener('DOMContentLoaded', function () {
     // Smooth scrolling for navigation links
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-
             const targetId = this.getAttribute('href');
             const targetElement = document.querySelector(targetId);
 
@@ -746,9 +752,6 @@ document.addEventListener('DOMContentLoaded', function () {
 function createTerminalEasterEgg() {
     const micr0Card = document.querySelector('.micr0Card');
     const takeThereLink = document.querySelector('.take-there-link');
-
-    // Unlink the "Take me there!" link
-    takeThereLink.removeAttribute('href');
 
     let isTerminalActive = false;
     let terminalContainer;
@@ -1865,7 +1868,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Visual feedback
                 copyButton.classList.add('copy-success');
                 const originalIcon = copyButton.innerHTML;
-                copyButton.innerHTML = '<i class="fas fa-check"></i>';
+                copyButton.innerHTML = '<i class="fas fa-check" aria-hidden="true" data-icon="✔"></i>';
 
                 // Reset after 2 seconds
                 setTimeout(() => {
@@ -1878,3 +1881,4 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 });
+}

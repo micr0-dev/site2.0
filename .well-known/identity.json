@@ -17,8 +17,8 @@
     {
       "platform": "Mastodon",
       "type": "mastodon",
-      "handle": "@micr0@fuzzies.wtf",
-      "url": "https://fuzzies.wtf/@micr0",
+      "handle": "@micr0@wetdry.world",
+      "url": "https://wetdry.world/@micr0",
       "verification": {
         "method": "rel-me",
         "expected": "https://micr0.dev"

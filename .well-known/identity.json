@@ -2,7 +2,9 @@
   "subject": "https://micr0.dev",
   "owner": {
     "name": "micr0byte",
-    "aliases": ["micr0"],
+    "aliases": [
+      "micr0"
+    ],
     "description": "Developer & community builder maintaining micr0.dev and associated projects."
   },
   "site": {
@@ -11,7 +13,14 @@
       "method": "http-file",
       "location": "https://micr0.dev/.well-known/identity.json",
       "explanation": "The presence of this signed-off file at a well-known location asserts control over the domain."
-    }
+    },
+    "mirrors": [
+      {
+        "type": "tor-hidden-service",
+        "url": "http://wc4vq2afee5n2exe5fptecerxyx635db7jmmvkw7z3wizful2bjgfxyd.onion",
+        "description": "JavaScript-free mirror accessible via Tor Browser."
+      }
+    ]
   },
   "profiles": [
     {
@@ -48,7 +57,8 @@
   "instructions": {
     "rel_me": "Confirm that each listed profile links back to https://micr0.dev with rel=me or the platform's native verification field.",
     "bluesky": "Bluesky verifies handles via DNS; check that the handle micr0.dev resolves to this domain.",
-    "mastodon": "Mastodon will display a green checkmark when the rel=me link is active on the linked site."
+    "mastodon": "Mastodon will display a green checkmark when the rel=me link is active on the linked site.",
+    "tor": "Use Tor Browser to visit the hidden service mirror at http://wc4vq2afee5n2exe5fptecerxyx635db7jmmvkw7z3wizful2bjgfxyd.onion and ensure it serves the same content as the clearnet site."
   },
-  "last_updated": "2025-10-07T19:18:15Z"
+  "last_updated": "2025-10-07T21:14:00Z"
 }

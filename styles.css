@@ -1004,6 +1004,117 @@ nav ul li a:hover::after {
     margin-bottom: var(--space-md);
 }
 
+/* Verification section */
+#verification {
+    background-color: var(--bg-secondary);
+    padding: var(--space-xl) 0;
+}
+
+.verification-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: var(--space-lg);
+    margin-top: var(--space-lg);
+}
+
+.verification-card {
+    background-color: var(--bg-primary);
+    border-radius: var(--border-radius-md);
+    padding: var(--space-lg);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.verification-card h3 {
+    font-size: 1.4rem;
+    color: var(--text-primary);
+}
+
+.verification-card p {
+    color: var(--text-secondary);
+}
+
+.verification-actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.verification-actions pre {
+    margin: 0;
+    padding: var(--space-sm);
+    background-color: var(--bg-tertiary);
+    border-radius: var(--border-radius-sm);
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    overflow-x: auto;
+}
+
+.verification-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.verification-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-md);
+    border-radius: var(--border-radius-md);
+    background: var(--bg-tertiary);
+    text-decoration: none;
+    transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+    color: var(--text-primary);
+}
+
+.verification-item:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+}
+
+.verification-item.loading {
+    justify-content: center;
+    font-style: italic;
+    color: var(--text-secondary);
+}
+
+.verification-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.verification-platform {
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+.verification-handle {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.verification-method {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: 0.875rem;
+    color: var(--accent-primary);
+}
+
+.verification-tag {
+    padding: 0.25rem 0.5rem;
+    background-color: rgba(124, 77, 255, 0.1);
+    border-radius: var(--border-radius-sm);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
 /* Contact section */
 #contact {
     background-color: var(--bg-primary);

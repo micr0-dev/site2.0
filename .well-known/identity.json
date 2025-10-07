@@ -1,0 +1,54 @@
+{
+  "subject": "https://micr0.dev",
+  "owner": {
+    "name": "micr0byte",
+    "aliases": ["micr0"],
+    "description": "Developer & community builder maintaining micr0.dev and associated projects."
+  },
+  "site": {
+    "title": "micr0byte | Developer & Community Builder",
+    "verification": {
+      "method": "http-file",
+      "location": "https://micr0.dev/.well-known/identity.json",
+      "explanation": "The presence of this signed-off file at a well-known location asserts control over the domain."
+    }
+  },
+  "profiles": [
+    {
+      "platform": "Mastodon",
+      "type": "mastodon",
+      "handle": "@micr0@fuzzies.wtf",
+      "url": "https://fuzzies.wtf/@micr0",
+      "verification": {
+        "method": "rel-me",
+        "expected": "https://micr0.dev"
+      }
+    },
+    {
+      "platform": "GitHub",
+      "type": "github",
+      "handle": "micr0-dev",
+      "url": "https://github.com/micr0-dev",
+      "verification": {
+        "method": "rel-me",
+        "expected": "https://micr0.dev"
+      }
+    },
+    {
+      "platform": "Bluesky",
+      "type": "bluesky",
+      "handle": "micr0.dev",
+      "url": "https://bsky.app/profile/micr0.dev",
+      "verification": {
+        "method": "did-handle",
+        "expected": "micr0.dev"
+      }
+    }
+  ],
+  "instructions": {
+    "rel_me": "Confirm that each listed profile links back to https://micr0.dev with rel=me or the platform's native verification field.",
+    "bluesky": "Bluesky verifies handles via DNS; check that the handle micr0.dev resolves to this domain.",
+    "mastodon": "Mastodon will display a green checkmark when the rel=me link is active on the linked site."
+  },
+  "last_updated": "2025-10-07T19:18:15Z"
+}

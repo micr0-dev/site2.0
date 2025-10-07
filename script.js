@@ -388,6 +388,9 @@ document.addEventListener('DOMContentLoaded', function () {
         `;
         document.head.appendChild(style);
     }
+
+    // Ownership verification display
+    initVerificationSection();
 });
 
 // Initialize skill sliders for proper infinite scrolling
@@ -425,6 +428,92 @@ document.addEventListener('DOMContentLoaded', function () {
     // Wait for images to load before initializing sliders
     window.addEventListener('load', initSkillSliders);
 });
+
+function initVerificationSection() {
+    const container = document.getElementById('profile-verifications');
+    if (!container) return;
+
+    const setMessage = (message) => {
+        container.innerHTML = '';
+        const messageEl = document.createElement('div');
+        messageEl.className = 'verification-item loading';
+        messageEl.textContent = message;
+        container.appendChild(messageEl);
+    };
+
+    fetch('/.well-known/identity.json', { cache: 'no-cache' })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            const profiles = Array.isArray(data.profiles) ? data.profiles : [];
+
+            if (!profiles.length) {
+                setMessage('No public profile proofs are published yet.');
+                return;
+            }
+
+            container.innerHTML = '';
+
+            profiles.forEach(profile => {
+                const link = document.createElement('a');
+                link.className = 'verification-item';
+                link.href = profile.url || '#';
+                link.target = '_blank';
+                link.rel = 'noopener me';
+
+                const info = document.createElement('div');
+                info.className = 'verification-info';
+
+                const platform = document.createElement('span');
+                platform.className = 'verification-platform';
+                platform.textContent = profile.platform || profile.type || 'Profile';
+                info.appendChild(platform);
+
+                if (profile.handle) {
+                    const handle = document.createElement('span');
+                    handle.className = 'verification-handle';
+                    handle.textContent = profile.handle;
+                    info.appendChild(handle);
+                } else if (profile.url) {
+                    const handle = document.createElement('span');
+                    handle.className = 'verification-handle';
+                    handle.textContent = profile.url.replace(/^https?:\/\//, '');
+                    info.appendChild(handle);
+                }
+
+                const methodWrapper = document.createElement('div');
+                methodWrapper.className = 'verification-method';
+
+                const methodTag = document.createElement('span');
+                methodTag.className = 'verification-tag';
+                const methodName = (profile.verification && profile.verification.method)
+                    ? profile.verification.method
+                    : 'link';
+                methodTag.textContent = methodName.replace(/[\W_]+/g, ' ').toUpperCase().trim();
+                methodWrapper.appendChild(methodTag);
+
+                const icon = document.createElement('i');
+                icon.className = 'fas fa-arrow-up-right-from-square';
+                methodWrapper.appendChild(icon);
+
+                if (profile.verification && profile.verification.expected) {
+                    link.title = `Expects back-link or handle match: ${profile.verification.expected}`;
+                }
+
+                link.appendChild(info);
+                link.appendChild(methodWrapper);
+                container.appendChild(link);
+            });
+        })
+        .catch(error => {
+            console.error('Failed to load identity.json', error);
+            setMessage('Unable to load verification data right now. Please try again later.');
+        });
+}
 
 // Handle interest card flipping
 document.addEventListener('DOMContentLoaded', function () {

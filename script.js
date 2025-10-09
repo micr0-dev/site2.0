@@ -395,6 +395,9 @@ if (document.documentElement.classList.contains('no-js')) {
         document.head.appendChild(style);
     }
 
+    // Blog listen buttons
+    initBlogAudio();
+
     // Ownership verification display
     initVerificationSection();
 });
@@ -434,6 +437,266 @@ document.addEventListener('DOMContentLoaded', function () {
     // Wait for images to load before initializing sliders
     window.addEventListener('load', initSkillSliders);
 });
+
+function initBlogAudio() {
+    if (document.documentElement.classList.contains('no-js')) {
+        return;
+    }
+
+    const listenButtons = document.querySelectorAll('.blog-listen');
+    const audioElements = document.querySelectorAll('.blog-audio');
+
+    const getProgressElements = (audio) => {
+        const footer = audio.closest('.blog-card-footer');
+        if (!footer) {
+            return { progress: null, seek: null };
+        }
+
+        const progress = footer.querySelector('.blog-card-progress');
+        const seek = progress?.querySelector('.blog-audio-seek') || null;
+
+        return { progress, seek };
+    };
+
+    const resetProgress = (audio) => {
+        const { progress, seek } = getProgressElements(audio);
+        if (seek) {
+            seek.value = 0;
+        }
+
+        if (progress) {
+            progress.hidden = true;
+            progress.classList.remove('is-visible');
+        }
+    };
+
+    const resetButton = (button) => {
+        if (!button) return;
+        button.classList.remove('is-playing');
+        button.textContent = button.getAttribute('data-label-play') || 'Listen';
+        button.setAttribute('aria-pressed', 'false');
+    };
+
+    const stopOthers = (currentAudio) => {
+        audioElements.forEach(audio => {
+            if (audio !== currentAudio) {
+                audio.pause();
+                audio.currentTime = 0;
+                const relatedButton = audio.closest('.blog-card')?.querySelector('.blog-listen');
+                resetButton(relatedButton);
+                resetProgress(audio);
+            }
+        });
+    };
+
+    listenButtons.forEach(button => {
+        const target = button.getAttribute('data-audio');
+        const audio = document.getElementById(`blog-audio-${target}`);
+
+        if (!audio) {
+            return;
+        }
+
+        const playLabel = button.textContent.trim() || 'Listen';
+        button.setAttribute('data-label-play', playLabel);
+        button.setAttribute('data-label-pause', 'Pause');
+        button.setAttribute('data-label-resume', 'Resume');
+        button.setAttribute('aria-pressed', 'false');
+
+        const { progress, seek } = getProgressElements(audio);
+        let pendingSeekValue = null;
+        let isScrubbing = false;
+        let resumeAfterScrub = false;
+
+        if (progress) {
+            progress.hidden = true;
+            progress.classList.remove('is-visible');
+        }
+
+        const showProgress = () => {
+            if (progress) {
+                progress.hidden = false;
+                progress.classList.add('is-visible');
+            }
+        };
+
+        const syncSeek = (force = false) => {
+            if (!seek || (!force && isScrubbing)) {
+                return;
+            }
+
+            if (isNaN(audio.duration) || !isFinite(audio.duration) || audio.duration === 0) {
+                return;
+            }
+
+            const percent = (audio.currentTime / audio.duration) * 100;
+            seek.value = Number.isFinite(percent) ? String(percent) : '0';
+        };
+
+        const applySeek = (rawValue, { forceUpdate = false } = {}) => {
+            if (!seek) {
+                return;
+            }
+
+            if (!Number.isFinite(rawValue)) {
+                return;
+            }
+
+            const clamped = Math.min(Math.max(rawValue, 0), 100);
+            seek.value = String(clamped);
+
+            if (isNaN(audio.duration) || !isFinite(audio.duration) || audio.duration === 0) {
+                pendingSeekValue = clamped;
+                return;
+            }
+
+            pendingSeekValue = null;
+            const targetTime = (clamped / 100) * audio.duration;
+
+            if (typeof audio.fastSeek === 'function') {
+                try {
+                    audio.fastSeek(targetTime);
+                } catch {
+                    audio.currentTime = targetTime;
+                }
+            } else {
+                audio.currentTime = targetTime;
+            }
+
+            if (forceUpdate) {
+                syncSeek(true);
+            }
+        };
+        if (seek) {
+            seek.value = '0';
+            const extractValue = (event) => {
+                const { valueAsNumber, value } = event.target;
+                if (Number.isFinite(valueAsNumber)) {
+                    return valueAsNumber;
+                }
+                return Number(value);
+            };
+
+            const beginScrub = () => {
+                if (isScrubbing) return;
+                isScrubbing = true;
+                resumeAfterScrub = !audio.paused && !audio.ended;
+                if (resumeAfterScrub) {
+                    audio.pause();
+                }
+            };
+
+            const endScrub = () => {
+                if (!isScrubbing) return;
+                isScrubbing = false;
+                const shouldResume = resumeAfterScrub;
+                resumeAfterScrub = false;
+
+                if (shouldResume) {
+                    audio.play()
+                        .catch(() => {
+                            setToResume();
+                        });
+                }
+            };
+
+            seek.addEventListener('pointerdown', beginScrub);
+            seek.addEventListener('pointerup', endScrub);
+            seek.addEventListener('pointercancel', endScrub);
+            seek.addEventListener('blur', endScrub);
+
+            seek.addEventListener('input', (event) => {
+                applySeek(extractValue(event), { forceUpdate: true });
+            });
+
+            seek.addEventListener('change', (event) => {
+                applySeek(extractValue(event), { forceUpdate: true });
+                endScrub();
+            });
+        }
+
+        const setToPause = () => {
+            button.classList.add('is-playing');
+            button.textContent = button.getAttribute('data-label-pause') || 'Pause';
+            button.setAttribute('aria-pressed', 'true');
+        };
+
+        const setToResume = () => {
+            button.classList.remove('is-playing');
+            button.textContent = button.getAttribute('data-label-resume') || 'Resume';
+            button.setAttribute('aria-pressed', 'false');
+        };
+
+        audio.addEventListener('timeupdate', () => {
+            syncSeek();
+        });
+
+        audio.addEventListener('seeked', () => {
+            syncSeek(true);
+        });
+
+        audio.addEventListener('loadedmetadata', () => {
+            syncSeek(true);
+            if (pendingSeekValue !== null) {
+                applySeek(pendingSeekValue, { forceUpdate: true });
+                pendingSeekValue = null;
+            }
+        });
+
+        audio.addEventListener('canplay', () => {
+            if (pendingSeekValue !== null) {
+                applySeek(pendingSeekValue, { forceUpdate: true });
+                pendingSeekValue = null;
+            }
+        });
+
+        audio.addEventListener('pause', () => {
+            if (audio.ended || audio.currentTime === 0) {
+                return;
+            }
+            setToResume();
+        });
+
+        audio.addEventListener('play', () => {
+            showProgress();
+            syncSeek(true);
+            setToPause();
+        });
+
+        audio.addEventListener('ended', () => {
+            audio.currentTime = 0;
+            resetButton(button);
+            resetProgress(audio);
+        });
+
+        button.addEventListener('click', () => {
+            if (audio.paused) {
+                stopOthers(audio);
+                if (audio.preload !== 'auto') {
+                    audio.preload = 'auto';
+                }
+                if (audio.readyState < 1) {
+                    audio.load();
+                }
+
+                audio.play()
+                    .then(() => {
+                        showProgress();
+                        syncSeek(true);
+                        setToPause();
+                    })
+                    .catch(() => {
+                        resetButton(button);
+                        resetProgress(audio);
+                        window.location.href = audio.querySelector('source')?.src || audio.src || '#';
+                    });
+            } else {
+                audio.pause();
+                setToResume();
+            }
+        });
+    });
+}
 
 function initVerificationSection() {
     const container = document.getElementById('profile-verifications');

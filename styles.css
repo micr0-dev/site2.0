@@ -3313,13 +3313,43 @@ h1.glitch {
     color: var(--terminal-text);
 }
 
-.hero-image .ascii-art {
-    font-family: monospace;
-    white-space: pre;
-    line-height: 1.2;
-    margin: 5px 0;
-    color: var(--terminal-text);
+.hero-image .terminal-neofetch {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.5rem;
+    margin: 10px 0;
+}
+
+.hero-image .terminal-pfp {
+    width: 140px;
+    height: 140px;
+    border-radius: var(--border-radius-lg);
+    object-fit: cover;
+    flex-shrink: 0;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.hero-image .terminal-details {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-family: var(--font-mono);
     font-size: 0.9rem;
+    color: var(--terminal-text);
+}
+
+.hero-image .detail {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.hero-image .detail-label {
+    min-width: 100px;
+    color: #50fa7b;
+}
+
+.hero-image .detail-value {
+    color: var(--terminal-text);
 }
 
 .hero-image .blink {
@@ -3877,8 +3907,15 @@ html.no-js .cursor-follower {
         font-size: 0.7rem;
     }
 
-    .hero-image .ascii-art {
-        font-size: 0.7rem;
+    .hero-image .terminal-neofetch {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    .hero-image .terminal-pfp {
+        width: 110px;
+        height: 110px;
     }
 
     .project-image .terminal.mini {

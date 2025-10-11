@@ -5165,3 +5165,27 @@ html.no-js .cursor-follower {
         align-items: stretch;
     }
 }
+
+.footer-onion {
+    overflow: hidden;
+    white-space: nowrap;
+    max-width: 100%; /* or set a specific width */
+  }
+  
+  .onion-address {
+    display: inline-block;
+    animation: scroll-left 15s linear infinite;
+  }
+  
+  @keyframes scroll-left {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-100%);
+    }
+  }
+  
+  .onion-address:hover {
+    animation-play-state: paused;
+  }

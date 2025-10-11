@@ -5167,25 +5167,11 @@ html.no-js .cursor-follower {
 }
 
 .footer-onion {
-    overflow: hidden;
+    overflow-x: auto;
     white-space: nowrap;
-    max-width: 100%; /* or set a specific width */
+    max-width: 100%;
   }
   
   .onion-address {
     display: inline-block;
-    animation: scroll-left 15s linear infinite;
-  }
-  
-  @keyframes scroll-left {
-    0% {
-      transform: translateX(0);
-    }
-    100% {
-      transform: translateX(-100%);
-    }
-  }
-  
-  .onion-address:hover {
-    animation-play-state: paused;
   }

@@ -4755,7 +4755,6 @@ html.no-js .cursor-follower {
 
 .blog-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: var(--space-lg);
     max-width: 760px;
     margin: 0 auto;

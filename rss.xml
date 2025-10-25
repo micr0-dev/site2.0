@@ -5,7 +5,18 @@
         <link>https://micr0.dev</link>
         <description>Tech, Privacy, Climate, and Accessibility</description>
         <language>en-us</language>
-        <lastBuildDate>Fri, 11 Oct 2025 00:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Sat, 25 Oct 2025 00:00:00 GMT</lastBuildDate>
+
+        <item>
+            <title>IP is Bullshit: Why “Intellectual Property” Shouldn’t Exist</title>
+            <link>https://micr0.dev/blog/html/IP_is_Bullshit.html</link>
+            <description>I just ordered a $25 development board from China that has an ESP32, 4G
+                LTE, GPS, battery management, and open-source everything. It ships with full
+                schematics. The company WANTS you to hack it, modify it, build on it, to do
+                literally everything and anything to it.</description>
+            <pubDate>Sat, 25 Oct 2025 00:00:00 GMT</pubDate>
+            <guid>https://micr0.dev/blog/html/IP_is_Bullshit.html</guid>
+        </item>
 
         <item>
             <title>What if social media moderated itself?</title>

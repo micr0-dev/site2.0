@@ -5452,3 +5452,17 @@ html.no-js .cursor-follower {
 #community {
     background-color: var(--bg-secondary);
 }
+
+.header-with-rss {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-md);
+    margin: 0 auto var(--space-md);
+}
+
+
+.rss-subscribe-btn {
+    color: var(--text-secondary);
+}

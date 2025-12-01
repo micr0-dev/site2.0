@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
     <channel>
         <title>Micr0byte's Blog</title>
         <link>https://micr0.dev</link>
         <description>Tech, Privacy, Climate, and Accessibility</description>
         <language>en-us</language>
-        <lastBuildDate>Sat, 25 Oct 2025 00:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Sat, 25 Oct 2025 00:00:00 +0000</lastBuildDate>
+        <atom:link href="https://micr0.dev/rss.xml" rel="self" type="application/rss+xml" />
 
         <item>
             <title>IP is Bullshit: Why “Intellectual Property” Shouldn’t Exist</title>
@@ -14,7 +15,7 @@
                 LTE, GPS, battery management, and open-source everything. It ships with full
                 schematics. The company WANTS you to hack it, modify it, build on it, to do
                 literally everything and anything to it.</description>
-            <pubDate>Sat, 25 Oct 2025 00:00:00 GMT</pubDate>
+            <pubDate>Sat, 25 Oct 2025 00:00:00 +0000</pubDate>
             <guid>https://micr0.dev/blog/html/IP_is_Bullshit.html</guid>
         </item>
 
@@ -27,7 +28,7 @@
                 their own special ways. Big tech social media is surveillance. That's not hyperbole,
                 that's just what it is. Every click tracked, every interaction analyzed, every piece
                 of data sold or used to predict your behavior.</description>
-            <pubDate>Fri, 11 Oct 2025 00:00:00 GMT</pubDate>
+            <pubDate>Sat, 11 Oct 2025 00:00:00 +0000</pubDate>
             <guid>https://micr0.dev/blog/html/gradient.html</guid>
         </item>
 
@@ -38,7 +39,7 @@
                 the state is doing what is best for them. But also that they are doing everything
                 they can, to know what you are doing. Who is the state? Who is they? If you don't
                 know who they are, they are hiding.</description>
-            <pubDate>Wed, 09 Oct 2025 00:00:00 GMT</pubDate>
+            <pubDate>Wed, 09 Oct 2025 00:00:00 +0000</pubDate>
             <guid>https://micr0.dev/blog/html/complaint_state.html</guid>
         </item>
 

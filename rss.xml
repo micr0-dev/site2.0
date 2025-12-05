@@ -5,11 +5,19 @@
         <link>https://micr0.dev</link>
         <description>Tech, Privacy, Climate, and Accessibility</description>
         <language>en-us</language>
-        <lastBuildDate>Sat, 25 Oct 2025 00:00:00 +0000</lastBuildDate>
+        <lastBuildDate>Thu, 04 Dec 2025 00:00:00 +0000</lastBuildDate>
         <atom:link href="https://micr0.dev/rss.xml" rel="self" type="application/rss+xml" />
 
         <item>
-            <title>IP is Bullshit: Why “Intellectual Property” Shouldn’t Exist</title>
+            <title>Streaming Video to a Boat Game: Building a Custom Codec for Stormworks</title>
+            <link>https://micr0.dev/blog/html/custom_codec_for_stormworks.html</link>
+            <description>It started, as these things always do, with a question nobody asked: could I stream video into Stormworks? What followed was weeks of custom compression algorithms, delta encoding, palette quantization, audio sync, and more debugging than I want to think about. And yeah, I got it working. Video playback. In a boat game. With audio sync.</description>
+            <pubDate>Thu, 04 Dec 2025 00:00:00 GMT</pubDate>
+            <guid>https://micr0.dev/blog/html/custom_codec_for_stormworks.html</guid>
+        </item>
+
+        <item>
+            <title>IP is Bullshit: Why "Intellectual Property" Shouldn't Exist</title>
             <link>https://micr0.dev/blog/html/IP_is_Bullshit.html</link>
             <description>I just ordered a $25 development board from China that has an ESP32, 4G
                 LTE, GPS, battery management, and open-source everything. It ships with full

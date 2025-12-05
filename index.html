@@ -1054,6 +1054,34 @@
 
                 <div class="blog-grid">
                     <article class="blog-card">
+                        <div class="blog-card-inner" aria-label="Custom Codec for Stormworks">
+                            <div class="blog-excerpt">
+                                <p><strong>Streaming Video to a Boat Game: Building a Custom Codec for Stormworks</strong></p>
+                                <p>It started, as these things always do, with a question nobody asked: could I stream video into Stormworks? What followed was weeks of custom compression algorithms, delta encoding, palette quantization, audio sync, and more debugging than I want to think about.</p>
+                                <p>And yeah, I got it working. Video playback. In a boat game. With audio sync.</p>
+                            </div>
+                        </div>
+                        <div class="blog-card-footer">
+                            <div class="blog-card-buttons">
+                                <button class="blog-action blog-listen js-required" type="button" data-audio="stormworks"
+                                    aria-controls="blog-audio-stormworks">Listen</button>
+                                <a class="blog-action no-js-only" href="blog/audio/custom_codec_for_stormworks.mp3"
+                                    target="_blank">Listen</a>
+                                <a class="blog-action" href="blog/html/custom_codec_for_stormworks.html" target="_blank">Read</a>
+                                <div class="blog-card-date">2025 December 4</div>
+                            </div>
+                            <div class="blog-card-progress js-required" hidden>
+                                <input class="blog-audio-seek" type="range" min="0" max="100" step="0.1" value="0"
+                                    aria-label="Seek audio playback position">
+                            </div>
+                            <audio class="blog-audio js-required" id="blog-audio-stormworks" preload="none"
+                                src="blog/audio/custom_codec_for_stormworks.mp3">
+                                <source src="blog/audio/custom_codec_for_stormworks.mp3" type="audio/mpeg">
+                                Your browser does not support the audio element.
+                            </audio>
+                        </div>
+                    </article>
+                    <article class="blog-card">
                         <div class="blog-card-inner" aria-label="IP is Bullshit">
                             <div class="blog-excerpt">
                                 <p><strong>IP is Bullshit: Why “Intellectual Property” Shouldn’t Exist</strong></p>

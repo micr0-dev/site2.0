@@ -25,7 +25,7 @@ And one more thing, on the public safety aspect: do you really think criminals w
 I grew up in Belarus. I've seen what this infrastructure enables when the switch gets flipped. And now I'm watching America build the same thing and call it safety.
 
 ---
-the first blog post in a serise called radio free america
+the first blog post in a series called radio free america
 
 by micr0
 

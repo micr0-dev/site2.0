@@ -1043,7 +1043,11 @@
             <div class="container">
                 <div class="section-header">
                     <div class="header-with-rss">
-                        <h2>Latest <span class="accent">Writing</span></h2>
+                        <h2>Latest <span class <meta name="mobile-web-app-capable" content="yes">
+                                <title>untitled eyes</title>
+                                <link rel="apple-touch-icon" sizes="180x180"
+                                    href="https://doc.micr0.dev/icons/apple-touch-icon.png">
+                            </span></h2>
                         <a href="/rss.xml" class="rss-subscribe-btn" title="Subscribe to RSS feed">
                             <i class="fas fa-rss" aria-hidden="true"></i>
                             <span class="rss-text">Subscribe</span>
@@ -1054,20 +1058,54 @@
 
                 <div class="blog-grid">
                     <article class="blog-card">
+                        <div class="blog-card-inner" aria-label="untitled eyes">
+                            <div class="blog-excerpt">
+                                <p><strong>untitled eyes</strong></p>
+                                <p>I noticed them first when I was driving to my friend's house. I had read about them
+                                    online but that was the first time I noticed one in person. There was no sign. There
+                                    was no... nothing.</p>
+                            </div>
+                        </div>
+                        <div class="blog-card-footer">
+                            <div class="blog-card-buttons">
+                                <button class="blog-action blog-listen js-required" type="button"
+                                    data-audio="untitled_eyes" aria-controls="blog-audio-untitled_eyes">Listen</button>
+                                <a class="blog-action no-js-only" href="blog/audio/untitled_eyes.mp3"
+                                    target="_blank">Listen</a>
+                                <a class="blog-action" href="blog/html/untitled_eyes.html" target="_blank">Read</a>
+                                <div class="blog-card-date">2026 January 10</div>
+                            </div>
+                            <div class="blog-card-progress js-required" hidden>
+                                <input class="blog-audio-seek" type="range" min="0" max="100" step="0.1" value="0"
+                                    aria-label="Seek audio playback position">
+                            </div>
+                            <audio class="blog-audio js-required" id="blog-audio-untitled_eyes" preload="none"
+                                src="blog/audio/untitled_eyes.mp3">
+                                <source src="blog/audio/untitled_eyes.mp3" type="audio/mpeg">
+                                Your browser does not support the audio element.
+                            </audio>
+                        </div>
+                    </article>
+                    <article class="blog-card">
                         <div class="blog-card-inner" aria-label="Custom Codec for Stormworks">
                             <div class="blog-excerpt">
-                                <p><strong>Streaming Video to a Boat Game: Building a Custom Codec for Stormworks</strong></p>
-                                <p>It started, as these things always do, with a question nobody asked: could I stream video into Stormworks? What followed was weeks of custom compression algorithms, delta encoding, palette quantization, audio sync, and more debugging than I want to think about.</p>
+                                <p><strong>Streaming Video to a Boat Game: Building a Custom Codec for
+                                        Stormworks</strong></p>
+                                <p>It started, as these things always do, with a question nobody asked: could I stream
+                                    video into Stormworks? What followed was weeks of custom compression algorithms,
+                                    delta encoding, palette quantization, audio sync, and more debugging than I want to
+                                    think about.</p>
                                 <p>And yeah, I got it working. Video playback. In a boat game. With audio sync.</p>
                             </div>
                         </div>
                         <div class="blog-card-footer">
                             <div class="blog-card-buttons">
-                                <button class="blog-action blog-listen js-required" type="button" data-audio="stormworks"
-                                    aria-controls="blog-audio-stormworks">Listen</button>
+                                <button class="blog-action blog-listen js-required" type="button"
+                                    data-audio="stormworks" aria-controls="blog-audio-stormworks">Listen</button>
                                 <a class="blog-action no-js-only" href="blog/audio/custom_codec_for_stormworks.mp3"
                                     target="_blank">Listen</a>
-                                <a class="blog-action" href="blog/html/custom_codec_for_stormworks.html" target="_blank">Read</a>
+                                <a class="blog-action" href="blog/html/custom_codec_for_stormworks.html"
+                                    target="_blank">Read</a>
                                 <div class="blog-card-date">2025 December 4</div>
                             </div>
                             <div class="blog-card-progress js-required" hidden>

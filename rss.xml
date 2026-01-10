@@ -5,8 +5,16 @@
         <link>https://micr0.dev</link>
         <description>Tech, Privacy, Climate, and Accessibility</description>
         <language>en-us</language>
-        <lastBuildDate>Thu, 04 Dec 2025 00:00:00 +0000</lastBuildDate>
+        <lastBuildDate>Fri, 10 Jan 2026 00:00:00 +0000</lastBuildDate>
         <atom:link href="https://micr0.dev/rss.xml" rel="self" type="application/rss+xml" />
+
+        <item>
+            <title>untitled eyes</title>
+            <link>https://micr0.dev/blog/html/untitled_eyes.html</link>
+            <description>I noticed them first when I was driving to my friend's house. Flock cameras. At one point I counted 58 on a single drive. They're moving from standalone poles to traffic infrastructure. I grew up in Belarus. I've seen what this infrastructure enables when the switch gets flipped. And now I'm watching America build the same thing and call it safety. The first blog post in a series called radio free america.</description>
+            <pubDate>Fri, 10 Jan 2026 00:00:00 +0000</pubDate>
+            <guid>https://micr0.dev/blog/html/untitled_eyes.html</guid>
+        </item>
 
         <item>
             <title>Streaming Video to a Boat Game: Building a Custom Codec for Stormworks</title>

@@ -5,8 +5,16 @@
         <link>https://micr0.dev</link>
         <description>Tech, Privacy, Climate, and Accessibility</description>
         <language>en-us</language>
-        <lastBuildDate>Fri, 10 Jan 2026 00:00:00 +0000</lastBuildDate>
+        <lastBuildDate>Tue, 27 Jan 2026 00:00:00 +0000</lastBuildDate>
         <atom:link href="https://micr0.dev/rss.xml" rel="self" type="application/rss+xml" />
+
+        <item>
+            <title>a glass of water</title>
+            <link>https://micr0.dev/blog/html/a_glass_of_water.html</link>
+            <description>A glass of water is what I drink while writing a blog post. But when AI drinks a glass of water, it's a crisis. You've seen the headlines. "ChatGPT uses a bottle of water for every 20 questions!" But when we talk about the water AI uses, we include training, data centers, cooling systems. So why don't we do the same for humans? Let's do the math and compare fairly.</description>
+            <pubDate>Tue, 27 Jan 2026 00:00:00 +0000</pubDate>
+            <guid>https://micr0.dev/blog/html/a_glass_of_water.html</guid>
+        </item>
 
         <item>
             <title>untitled eyes</title>

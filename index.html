@@ -1066,13 +1066,22 @@
                                     bottle of water for every 20 questions!" But when we talk about the water AI
                                     uses, we include training, data centers, cooling systems. So why don't we do
                                     the same for humans? Let's do the math and compare fairly.</p>
-                                <div class="button-group">
-                                    <a href="blog/html/a_glass_of_water.html" class="button" aria-label="Read full post">
-                                        <i class="fas fa-book-open"></i> Read
-                                    </a>
-                                </div>
                             </div>
-                            <audio controls class="blog-audio" aria-label="Audio version of a glass of water"
+                        </div>
+                        <div class="blog-card-footer">
+                            <div class="blog-card-buttons">
+                                <button class="blog-action blog-listen js-required" type="button"
+                                    data-audio="a_glass_of_water" aria-controls="blog-audio-a_glass_of_water">Listen</button>
+                                <a class="blog-action no-js-only" href="blog/audio/a_glass_of_water.mp3"
+                                    target="_blank">Listen</a>
+                                <a class="blog-action" href="blog/html/a_glass_of_water.html" target="_blank">Read</a>
+                                <div class="blog-card-date">2026 January 27</div>
+                            </div>
+                            <div class="blog-card-progress js-required" hidden>
+                                <input class="blog-audio-seek" type="range" min="0" max="100" step="0.1" value="0"
+                                    aria-label="Seek audio playback position">
+                            </div>
+                            <audio class="blog-audio js-required" id="blog-audio-a_glass_of_water" preload="none"
                                 src="blog/audio/a_glass_of_water.mp3">
                                 <source src="blog/audio/a_glass_of_water.mp3" type="audio/mpeg">
                                 Your browser does not support the audio element.
